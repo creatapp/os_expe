@@ -1,0 +1,727 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0032)http://www.techbulo.com/708.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>GDT,LDT,GDTR,LDTR 详解,包你理解透彻 | 技术部落</title> 
+<meta name="description" content="一、引入">
+<meta name="keywords" content="GDT,GDTR,LDT,LDTR">
+<link rel="stylesheet" href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/style.css" type="text/css" media="screen">
+<link rel="stylesheet" href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/css.css">
+<link rel="stylesheet" href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/highlight.css">
+<link rel="stylesheet" href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/img.css">
+<link rel="pingback" href="http://www.techbulo.com/xmlrpc.php">
+<link rel="shortcut icon" href="http://www.techbulo.com/wp-content/themes/HotNewspro/images/favicon.ico">
+<script src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/hm.js"></script><script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/jquery.min.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/comments-ajax.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/reply.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/custom.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/superfish.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/lazyload.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/mousewheel.js"></script>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/fancybox.js"></script>
+<!--[if lt IE 7]>
+<script type="text/javascript" src="http://www.techbulo.com/wp-content/themes/HotNewspro/js/pngfix.js"></script>
+<script type="text/javascript" src="http://www.techbulo.com/wp-content/themes/HotNewspro/js/ie6.js"></script>
+<![endif]-->
+<link rel="dns-prefetch" href="http://s.w.org/">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.4\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.4\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/www.techbulo.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.9.5"}};
+			!function(a,b,c){function d(a,b){var c=String.fromCharCode;l.clearRect(0,0,k.width,k.height),l.fillText(c.apply(this,a),0,0);var d=k.toDataURL();l.clearRect(0,0,k.width,k.height),l.fillText(c.apply(this,b),0,0);var e=k.toDataURL();return d===e}function e(a){var b;if(!l||!l.fillText)return!1;switch(l.textBaseline="top",l.font="600 32px Arial",a){case"flag":return!(b=d([55356,56826,55356,56819],[55356,56826,8203,55356,56819]))&&(b=d([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]),!b);case"emoji":return b=d([55357,56692,8205,9792,65039],[55357,56692,8203,9792,65039]),!b}return!1}function f(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var g,h,i,j,k=b.createElement("canvas"),l=k.getContext&&k.getContext("2d");for(j=Array("flag","emoji"),c.supports={everything:!0,everythingExceptFlag:!0},i=0;i<j.length;i++)c.supports[j[i]]=e(j[i]),c.supports.everything=c.supports.everything&&c.supports[j[i]],"flag"!==j[i]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[j[i]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(h=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",h,!1),a.addEventListener("load",h,!1)):(a.attachEvent("onload",h),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),g=c.source||{},g.concatemoji?f(g.concatemoji):g.wpemoji&&g.twemoji&&(f(g.twemoji),f(g.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/wp-emoji-release.min.js" type="text/javascript" defer=""></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="https://api.w.org/" href="http://www.techbulo.com/wp-json/">
+<link rel="canonical" href="http://www.techbulo.com/708.html">
+<link rel="alternate" type="application/json+oembed" href="http://www.techbulo.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.techbulo.com%2F708.html">
+<link rel="alternate" type="text/xml+oembed" href="http://www.techbulo.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.techbulo.com%2F708.html&amp;format=xml">
+		<link href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/3-red.css" rel="stylesheet" type="text/css">
+<style type="text/css" id="syntaxhighlighteranchor"></style>
+</head>
+<body class="post-template-default single single-post postid-708 single-format-standard">
+<div id="wrapper">
+	<div id="top">
+		<div id="topnav">
+			<div class="left_top ">
+				<div class="home_h"><a href="http://www.techbulo.com/" title="首  页" class="home_h"></a></div>
+				<div class="menu-%e4%b8%bb%e8%8f%9c%e5%8d%95-container"><ul id="menu-%e4%b8%bb%e8%8f%9c%e5%8d%95" class="menu sf-js-enabled sf-shadow"><li id="menu-item-40" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-40"><a href="http://www.techbulo.com/category/tech" class="">技术文章<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+	<li id="menu-item-1050" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-1050"><a href="http://www.techbulo.com/category/tech/hacklinux" class="">Linux那些事儿<span class="sf-sub-indicator"> »</span><span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+		<li id="menu-item-1052" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1052"><a href="http://www.techbulo.com/category/tech/hacklinux/uhci">我是UHCI</a></li>
+		<li id="menu-item-1053" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1053"><a href="http://www.techbulo.com/category/tech/hacklinux/block">我是Block层</a></li>
+		<li id="menu-item-1054" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1054"><a href="http://www.techbulo.com/category/tech/hacklinux/hub">我是HUB</a></li>
+		<li id="menu-item-1055" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1055"><a href="http://www.techbulo.com/category/tech/hacklinux/pci">我是PCI</a></li>
+		<li id="menu-item-1056" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1056"><a href="http://www.techbulo.com/category/tech/hacklinux/scsi-disk">我是SCSI硬盘</a></li>
+		<li id="menu-item-1057" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1057"><a href="http://www.techbulo.com/category/tech/hacklinux/sysfs-hacklinux">我是Sysfs</a></li>
+		<li id="menu-item-1058" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1058"><a href="http://www.techbulo.com/category/tech/hacklinux/usb">我是USB</a></li>
+		<li id="menu-item-1059" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1059"><a href="http://www.techbulo.com/category/tech/hacklinux/u-disk">我是U盘</a></li>
+	</ul>
+</li>
+	<li id="menu-item-292" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-292"><a href="http://www.techbulo.com/category/tech/rtos/base">基础知识</a></li>
+	<li id="menu-item-236" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-236"><a href="http://www.techbulo.com/category/tech/rtos" class="">RTOS<span class="sf-sub-indicator"> »</span><span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+		<li id="menu-item-237" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-237"><a href="http://www.techbulo.com/category/tech/rtos/ucos-ii">UCOS-II</a></li>
+		<li id="menu-item-238" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-238"><a href="http://www.techbulo.com/category/tech/rtos/vxworks">VxWorks</a></li>
+		<li id="menu-item-241" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-241"><a href="http://www.techbulo.com/category/tech/rtos/%CE%BCclinux">μClinux</a></li>
+		<li id="menu-item-239" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-239"><a href="http://www.techbulo.com/category/tech/rtos/%CE%BCtenux">μTenux</a></li>
+		<li id="menu-item-240" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-240"><a href="http://www.techbulo.com/category/tech/rtos/djyos">DJYOS</a></li>
+		<li id="menu-item-242" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-242"><a href="http://www.techbulo.com/category/tech/rtos/ecos">Cos</a></li>
+		<li id="menu-item-243" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-243"><a href="http://www.techbulo.com/category/tech/rtos/rtxc">RTXC</a></li>
+	</ul>
+</li>
+	<li id="menu-item-288" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-288"><a href="http://www.techbulo.com/category/tech/os">操作系统</a></li>
+	<li id="menu-item-286" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-286"><a href="http://www.techbulo.com/category/tech/bare">裸机开发</a></li>
+	<li id="menu-item-287" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-287"><a href="http://www.techbulo.com/category/tech/bootloader">Bootloader</a></li>
+	<li id="menu-item-289" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-289"><a href="http://www.techbulo.com/category/tech/driver">驱动开发</a></li>
+	<li id="menu-item-291" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-291"><a href="http://www.techbulo.com/category/tech/app">应用开发</a></li>
+	<li id="menu-item-290" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-290"><a href="http://www.techbulo.com/category/tech/mobile">移动开发</a></li>
+	<li id="menu-item-293" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-293"><a href="http://www.techbulo.com/category/tech/elec">电子技术</a></li>
+	<li id="menu-item-1126" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1126"><a href="http://www.techbulo.com/category/fpga">FPGA开发</a></li>
+	<li id="menu-item-1303" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-1303"><a href="http://www.techbulo.com/category/tech/tiny4412" class="">Tiny4412专区<span class="sf-sub-indicator"> »</span><span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+		<li id="menu-item-1318" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1318"><a href="http://www.techbulo.com/category/tech/tiny4412/noos">裸机程序</a></li>
+		<li id="menu-item-1319" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1319"><a href="http://www.techbulo.com/category/tech/tiny4412/u-boot">U-Boot</a></li>
+		<li id="menu-item-1320" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1320"><a href="http://www.techbulo.com/category/tech/tiny4412/linux">Linux</a></li>
+		<li id="menu-item-1321" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1321"><a href="http://www.techbulo.com/category/tech/tiny4412/rootfs">文件系统</a></li>
+		<li id="menu-item-1322" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1322"><a href="http://www.techbulo.com/category/tech/tiny4412/android">Android</a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li id="menu-item-41" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-41"><a href="http://www.techbulo.com/category/env">环境搭建</a></li>
+<li id="menu-item-42" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-42"><a href="http://www.techbulo.com/category/tools">工具配置</a></li>
+<li id="menu-item-109" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-109"><a href="http://www.techbulo.com/videos/video" class="">视频教程<span class="sf-sub-indicator"> »</span></a>
+<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+	<li id="menu-item-144" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-144"><a href="http://www.techbulo.com/videos/mcu" class="">MCU视频<span class="sf-sub-indicator"> »</span><span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+		<li id="menu-item-145" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-145"><a href="http://www.techbulo.com/videos/51">51单片机</a></li>
+		<li id="menu-item-146" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146"><a href="http://www.techbulo.com/videos/avr">AVR单片机</a></li>
+	</ul>
+</li>
+	<li id="menu-item-219" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-219"><a href="http://www.techbulo.com/videos/arm">ARM视频</a></li>
+	<li id="menu-item-779" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-779"><a href="http://www.techbulo.com/videos/Lan" class="">编程语言<span class="sf-sub-indicator"> »</span><span class="sf-sub-indicator"> »</span></a>
+	<ul class="sub-menu sf-js-enabled sf-shadow" style="display: none; visibility: hidden;">
+		<li id="menu-item-782" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-782"><a href="http://www.techbulo.com/videos/asm">汇编语言</a></li>
+		<li id="menu-item-781" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-781"><a href="http://www.techbulo.com/videos/c">C语言</a></li>
+		<li id="menu-item-780" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-780"><a href="http://www.techbulo.com/videos/cpp">C++</a></li>
+		<li id="menu-item-783" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-783"><a href="http://www.techbulo.com/videos/java">JAVA</a></li>
+	</ul>
+</li>
+	<li id="menu-item-778" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-778"><a href="http://www.techbulo.com/videos/os">操作系统</a></li>
+</ul>
+</li>
+<li id="menu-item-2128" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2128"><a href="https://github.com/techbulo">开源项目</a></li>
+<li id="menu-item-2299" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2299"><a href="http://www.techbulo.com/blog">联系博主</a></li>
+</ul></div> 
+			</div>
+			<!-- end: left_top --> 
+			<div id="searchbar">
+				<form method="get" id="searchform" action="http://www.techbulo.com/">
+	<input type="text" name="s" id="s" class="swap_value">
+	<input type="image" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/go.gif" id="go" alt="Search" title="搜索">
+</form>			</div>
+			<!-- end: searchbar -->
+		</div>
+		<!-- end: topnav -->
+	</div>
+	<!-- end: top -->
+	<div id="header">
+		<div class="header_c">
+			<div class="login_t"><a id="showbtn" onclick="showid(&#39;smallLay&#39;);">登录</a>  <div id="smallLay">
+	<div id="smallLay_box">
+	<!-- if not logged -->
+	<form action="http://www.techbulo.com/wp-login.php?redirect_to=http%3A%2F%2Fwww.techbulo.com%2F708.html" method="post" id="loginform">
+		<div class="loginblock">
+			<p class="login"><input type="text" name="log" id="log" size="" tabindex="11"></p>
+			<p class="password"><input type="password" name="pwd" id="pwd" size="" tabindex="12"></p>
+			<p class="lefted"><button value="Submit" id="submit_t" type="submit" tabindex="13">登&nbsp;录</button></p>
+		</div>
+		<input type="hidden" name="redirect_to" value="/708.html">
+		<input type="checkbox" name="rememberme" id="modlogn_remember" value="yes" checked="checked" alt="Remember Me">下次自动登录
+	</form>
+	<!-- end if not logged -->
+	</div>
+</div>
+</div>
+			<div class="time">
+
+</div>			<div class="logo_box">
+	<a href="http://www.techbulo.com/" title="技术部落"><h1 class="logo">技术部落</h1></a>
+</div>		</div>
+		<div class="clear"></div>
+		<!-- end: header_c -->
+	</div>
+	<!-- end: header -->
+	<div id="top_hot">
+	<div id="featured">
+				<div class="item">
+			<div class="top_t">
+							</div>
+			<!-- 截图 -->
+			<div class="thumbnail_hot">
+									<a href="http://www.techbulo.com/2305.html" rel="bookmark" title="YUV格式数据接收，显示灰度图像到VGA"><img class="home-thumb" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/yuv-300x185.jpg" width="236px" height="155px" alt="YUV格式数据接收，显示灰度图像到VGA"></a>
+										</div>
+			<div class="top_box"><a href="http://www.techbulo.com/2305.html" rel="bookmark" title="YUV格式数据接收，显示灰度图像到VGA">详细内容</a></div>
+			<div class="boxCaption">
+				<h2><a href="http://www.techbulo.com/2305.html" title="Permalink to YUV格式数据接收，显示灰度图像到VGA">YUV格式数据接收，显示灰度图</a></h2>
+			</div>
+		</div>
+			<div class="item">
+			<div class="top_t">
+							</div>
+			<!-- 截图 -->
+			<div class="thumbnail_hot">
+									<a href="http://www.techbulo.com/2289.html" rel="bookmark" title="简单字符叠加测试，画框及十字线、中英文显示"><img class="home-thumb" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/osd-300x181.jpg" width="236px" height="155px" alt="简单字符叠加测试，画框及十字线、中英文显示"></a>
+										</div>
+			<div class="top_box"><a href="http://www.techbulo.com/2289.html" rel="bookmark" title="简单字符叠加测试，画框及十字线、中英文显示">详细内容</a></div>
+			<div class="boxCaption">
+				<h2><a href="http://www.techbulo.com/2289.html" title="Permalink to 简单字符叠加测试，画框及十字线、中英文显示">简单字符叠加测试，画框及十字线</a></h2>
+			</div>
+		</div>
+			<div class="item">
+			<div class="top_t">
+							</div>
+			<!-- 截图 -->
+			<div class="thumbnail_hot">
+									<a href="http://www.techbulo.com/2281.html" rel="bookmark" title="终于出图像了，记录一下"><img class="home-thumb" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/pic1-300x181.jpg" width="236px" height="155px" alt="终于出图像了，记录一下"></a>
+										</div>
+			<div class="top_box"><a href="http://www.techbulo.com/2281.html" rel="bookmark" title="终于出图像了，记录一下">详细内容</a></div>
+			<div class="boxCaption">
+				<h2><a href="http://www.techbulo.com/2281.html" title="Permalink to 终于出图像了，记录一下">终于出图像了，记录一下</a></h2>
+			</div>
+		</div>
+			<div class="item">
+			<div class="top_t">
+							</div>
+			<!-- 截图 -->
+			<div class="thumbnail_hot">
+									<a href="http://www.techbulo.com/2276.html" rel="bookmark" title="sdram 控制器代码（使用VHDL编写）"><img class="home-thumb" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/sdram_wr-300x157.png" width="236px" height="155px" alt="sdram 控制器代码（使用VHDL编写）"></a>
+										</div>
+			<div class="top_box"><a href="http://www.techbulo.com/2276.html" rel="bookmark" title="sdram 控制器代码（使用VHDL编写）">详细内容</a></div>
+			<div class="boxCaption">
+				<h2><a href="http://www.techbulo.com/2276.html" title="Permalink to sdram 控制器代码（使用VHDL编写）">sdram 控制器代码（使用VHDL</a></h2>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div>	<!-- scroll -->
+	<ul class="scroll">
+	<li class="sct">
+		<a href="http://www.techbulo.com/708.html#">&nbsp;&nbsp;&nbsp;</a>
+		<div><a class="scroll_t">返回顶部</a></div>
+	</li>
+		<li class="scc">
+		<a href="http://www.techbulo.com/708.html#">&nbsp;&nbsp;&nbsp;</a>
+		<div><a class="scroll_c">查看留言</a></div>
+	</li>
+		<li class="scb">
+		<a href="http://www.techbulo.com/708.html#">&nbsp;&nbsp;&nbsp;</a>
+		<div><a class="scroll_b">转到底部</a></div>
+	</li>
+</ul><script type="text/javascript">
+    function doZoom(size) {
+        var zoom = document.all ? document.all['entry'] : document.getElementById('entry');
+        zoom.style.fontSize = size + 'px';
+    }
+</script>
+<div id="content">
+			 <!-- menu -->
+		<div id="map">
+			<div class="browse">现在的位置: <a title="返回首页" href="http://www.techbulo.com/">首页</a> &gt; <a href="http://www.techbulo.com/category/tech">技术文章</a> &gt; <a href="http://www.techbulo.com/category/tech/base" rel="category tag">基础知识</a> &gt; 正文</div>
+			<div id="feed"><a href="http://www.techbulo.com/feed" title="RSS">RSS</a></div>
+		</div>
+		<!-- end: menu -->
+		<div class="entry_box_s">
+			<div class="context">
+				<div class="context_t" style="display: none;">
+					<span class="prev"><a href="http://www.techbulo.com/703.html" rel="prev">上篇</a></span>
+					<span class="next"><a href="http://www.techbulo.com/726.html" rel="next">下篇</a></span>
+				</div>
+			</div>
+			<div class="entry_title_box">
+				<!-- 分类图标 -->
+				<div class="ico"></div>
+				<!-- end: 分类图标 -->
+				<h2 class="entry_title">GDT,LDT,GDTR,LDTR 详解,包你理解透彻</h2>
+				<div class="archive_info">
+					<span class="date">2013年12月25日</span>
+					<span class="category"> ⁄ <a href="http://www.techbulo.com/category/tech/base" rel="category tag">基础知识</a></span>
+										⁄ 共 3365字					⁄ 字号 <span class="font"><a href="javascript:doZoom(12)">小</a> <a href="javascript:doZoom(13)">中</a> <a href="javascript:doZoom(18)">大</a></span>
+					<span class="comment"> ⁄ <a href="http://www.techbulo.com/708.html#comments">评论 2 条</a></span>
+										<span class="edit"></span>
+				</div>
+			</div>
+			<!-- end: entry_title_box -->
+			<div class="entry">
+				<div id="entry">
+																				<p><span style="background-color: #ff6600; font-size: large;">一、引入</span></p>
+<p>保护模式下的段寄存器 由 16位的选择器 与 64位的段描述符寄存器 构成</p>
+<p><span style="background-color: #00ff00;">段描述符寄存器： 存储段描述符</span></p>
+<p><span style="background-color: #00ff00;">选择器：存储段描述符的索引</span></p>
+<div id="attachment_710" style="width: 310px" class="wp-caption aligncenter"><a href="http://www.techbulo.com/wp-content/uploads/2013/12/segment-register.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-medium wp-image-710" alt="段寄存器" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/segment-register-300x148.jpg" width="300" height="148" srcset="http://www.techbulo.com/wp-content/uploads/2013/12/segment-register-300x148.jpg 300w, http://www.techbulo.com/wp-content/uploads/2013/12/segment-register.jpg 513w" sizes="(max-width: 300px) 100vw, 300px" original="http://www.techbulo.com/wp-content/uploads/2013/12/segment-register-300x148.jpg"></a><p class="wp-caption-text">段寄存器</p></div>
+<p>PS：原先实模式下的各个段寄存器作为保护模式下的段选择器，80486中有6个(即CS,SS,DS,ES,FS,GS)80位的段寄存器。由选择器CS对应表示的段仍为代码段，选择器SS对应表示的段仍为堆栈段。</p>
+<p><span style="background-color: #ff6600; font-size: large;">二、详解</span></p>
+<p><span style="background-color: #ff00ff; font-size: medium;">先说明一下概念</span></p>
+<p>（1）<span style="background-color: #00ff00;">全局描述符表GDT</span>（Global Descriptor Table）在整个系统中，全局描述符表GDT只有一张(一个处理器对应一个GDT)，GDT可以被放在内存的任何位置，但CPU必须知道GDT的入口，也就是基地址放在哪里，Intel的设计者门提供了一个寄存器GDTR用来存放GDT的入口地址，程序员将GDT设定在内存中某个位置之后，可以通过LGDT指令将GDT的入口地址装入此寄存器，从此以后，CPU就根据此寄存器中的内容作为GDT的入口来访问GDT了。GDTR中存放的是GDT在内存中的基地址和其表长界限。</p>
+<p>基地址指定GDT表中字节0在线性地址空间中的地址，表长度指明GDT表的字节长度值。指令LGDT和SGDT分别用于加载和保存GDTR寄存器的内容。在机器刚加电或处理器复位后，基地址被默认地设置为0，而长度值被设置成0xFFFF。在保护模式初始化过程中必须给GDTR加载一个新值。</p>
+<div id="attachment_711" style="width: 310px" class="wp-caption aligncenter"><a href="http://www.techbulo.com/wp-content/uploads/2013/12/GDTR.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-medium wp-image-711" alt="GDTR" width="300" height="103" srcset="http://www.techbulo.com/wp-content/uploads/2013/12/GDTR-300x103.jpg 300w, http://www.techbulo.com/wp-content/uploads/2013/12/GDTR.jpg 360w" sizes="(max-width: 300px) 100vw, 300px" original="http://www.techbulo.com/wp-content/uploads/2013/12/GDTR-300x103.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/GDTR-300x103.jpg" style="display: inline;"></a><p class="wp-caption-text">GDTR</p></div>
+<p>（2）<span style="background-color: #00ff00;">段选择子</span>（Selector）由GDTR访问全局描述符表是通过“段选择子”（实模式下的段寄存器）来完成的。段选择子是一个16位的寄存器（同实模式下的段寄存器相同）</p>
+<div id="attachment_712" style="width: 271px" class="wp-caption aligncenter"><a href="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/Selector.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-full wp-image-712" alt="段选择子" width="261" height="120" original="http://www.techbulo.com/wp-content/uploads/2013/12/Selector.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/Selector.jpg" style="display: inline;"></a><p class="wp-caption-text">段选择子</p></div>
+<p>段选择子包括<span style="background-color: #ff0000;">三部分</span>：<span style="background-color: #99cc00;">描述符索引（index）、TI、请求特权级（RPL）</span>。他的index（描述符索引）部分表示所需要的段的描述符在描述符表的位置，由这个位置再根据在GDTR中存储的描述符表基址就可以找到相应的描述符。然后用描述符表中的段基址加上逻辑地址（SEL:OFFSET）的OFFSET就可以转换成线性地址，段选择子中的TI值只有一位0或1，0代表选择子是在GDT选择，1代表选择子是在LDT选择。请求特权级（RPL）则代表选择子的特权级，共有4个特权级（0级、1级、2级、3级）。</p>
+<p><span style="background-color: #ffff99;">关于特权级的说明</span>：任务中的每一个段都有一个特定的级别。每当一个程序试图访问某一个段时，就将该程序所拥有的特权级与要访问的特权级进行比较，以决定能否访问该段。系统约定，CPU只能访问同一特权级或级别较低特权级的段。</p>
+<p>例如给出逻辑地址：21h:12345678h转换为线性地址</p>
+<p>a. 选择子SEL=21h=0000000000100 0 01b 他代表的意思是：选择子的index=4即100b选择GDT中的第4个描述符；TI=0代表选择子是在GDT选择；左后的01b代表特权级RPL=1</p>
+<p>b. OFFSET=12345678h若此时GDT第四个描述符中描述的段基址（Base）为11111111h，则线性地址=11111111h+12345678h=23456789h</p>
+<p>（3）<span style="background-color: #00ff00;">局部描述符表LDT</span>（Local Descriptor Table）局部描述符表可以有若干张，每个任务可以有一张。我们可以这样理解GDT和LDT：<span style="background-color: #ffff99;">GDT为一级描述符表，LDT为二级描述符表</span>。如图</p>
+<div id="attachment_713" style="width: 310px" class="wp-caption aligncenter"><a href="http://www.techbulo.com/wp-content/uploads/2013/12/LDT.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-medium wp-image-713" alt="局部描述符表LDT" width="300" height="223" srcset="http://www.techbulo.com/wp-content/uploads/2013/12/LDT-300x223.jpg 300w, http://www.techbulo.com/wp-content/uploads/2013/12/LDT.jpg 633w" sizes="(max-width: 300px) 100vw, 300px" original="http://www.techbulo.com/wp-content/uploads/2013/12/LDT-300x223.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/LDT-300x223.jpg" style="display: inline;"></a><p class="wp-caption-text">局部描述符表LDT</p></div>
+<p>LDT和GDT从本质上说是相同的，只是LDT嵌套在GDT之中。<span style="background-color: #ffff99;">LDTR记录局部描述符表的起始位置</span>，与GDTR不同，<span style="background-color: #ff0000;">LDTR的内容是一个段选择子</span>。由于LDT本身同样是一段内存，也是一个段，所以它也有个描述符描述它，这个描述符就存储在GDT中，对应这个表述符也会有一个选择子，LDTR装载的就是这样一个选择子。LDTR可以在程序中随时改变，通过使用lldt指令。如上图，如果装载的是Selector 2则LDTR指向的是表LDT2。举个例子：如果我们想在表LDT2中选择第三个描述符所描述的段的地址12345678h。</p>
+<p>1. 首先需要装载LDTR使它指向LDT2 使用指令lldt将Select2装载到LDTR</p>
+<p>2. 通过逻辑地址（SEL:OFFSET）访问时SEL的index=3代表选择第三个描述符；TI=1代表选择子是在LDT选择，此时LDTR指向的是LDT2,所以是在LDT2中选择，此时的SEL值为1Ch(二进制为11 1 00b)。OFFSET=12345678h。逻辑地址为1C:12345678h</p>
+<p>3. 由SEL选择出描述符，由描述符中的基址（Base）加上OFFSET可得到线性地址，例如基址是11111111h，则线性地址=11111111h+12345678h=23456789h</p>
+<p>4. 此时若再想访问LDT1中的第三个描述符，只要使用lldt指令将选择子Selector 1装入再执行2、3两步就可以了（因为此时LDTR又指向了LDT1）</p>
+<p>由于每个进程都有自己的一套程序段、数据段、堆栈段，有了局部描述符表则可以将每个进程的程序段、数据段、堆栈段封装在一起，只要改变LDTR就可以实现对不同进程的段进行访问。</p>
+<p>当进行任务切换时，处理器会把新任务LDT的段选择符和段描述符自动地加载进LDTR中。在机器加电或处理器复位后，段选择符和基地址被默认地设置为0，而段长度被设置成0xFFFF。</p>
+<p><span style="font-size: medium; background-color: #ff6600;">三、实例（对理解非常有用）</span></p>
+<p><span style="background-color: #00ff00;">1：访问GDT</span></p>
+<div id="attachment_714" style="width: 310px" class="wp-caption aligncenter"><a href="http://www.techbulo.com/wp-content/uploads/2013/12/GDT-DEMO.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-medium wp-image-714" alt="段描述符在GDT中" width="300" height="137" srcset="http://www.techbulo.com/wp-content/uploads/2013/12/GDT-DEMO-300x137.jpg 300w, http://www.techbulo.com/wp-content/uploads/2013/12/GDT-DEMO.jpg 984w" sizes="(max-width: 300px) 100vw, 300px" original="http://www.techbulo.com/wp-content/uploads/2013/12/GDT-DEMO-300x137.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/GDT-DEMO-300x137.jpg" style="display: inline;"></a><p class="wp-caption-text">段描述符在GDT中</p></div>
+<p>当TI=0时表示段描述符在GDT中，如上图所示：</p>
+<p>①先从GDTR寄存器中获得GDT基址。</p>
+<p>②然后再GDT中以段选择器高13位位置索引值得到段描述符。</p>
+<p>③段描述符符包含段的基址、限长、优先级等各种属性，这就得到了段的起始地址（基址），再以基址加上偏移地址yyyyyyyy才得到最后的线性地址。</p>
+<p><span style="background-color: #00ff00;">2：访问LDT</span></p>
+<div id="attachment_715" style="width: 310px" class="wp-caption aligncenter"><a href="http://www.techbulo.com/wp-content/uploads/2013/12/LDT-DEMO.jpg" class="cboxElement" rel="example_group" 708=""><img class="size-medium wp-image-715" alt="段描述符在LDT中" width="300" height="133" srcset="http://www.techbulo.com/wp-content/uploads/2013/12/LDT-DEMO-300x133.jpg 300w, http://www.techbulo.com/wp-content/uploads/2013/12/LDT-DEMO.jpg 960w" sizes="(max-width: 300px) 100vw, 300px" original="http://www.techbulo.com/wp-content/uploads/2013/12/LDT-DEMO-300x133.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/LDT-DEMO-300x133.jpg" style="display: inline;"></a><p class="wp-caption-text">段描述符在LDT中</p></div>
+<p>当TI=1时表示段描述符在LDT中，如上图所示：</p>
+<p>①还是先从GDTR寄存器中获得GDT基址。</p>
+<p>②从LDTR寄存器中获取LDT所在段的位置索引(LDTR高13位)。</p>
+<p>③以这个位置索引在GDT中得到LDT段描述符从而得到LDT段基址。</p>
+<p>④用段选择器高13位位置索引值从LDT段中得到段描述符。</p>
+<p>⑤段描述符符包含段的基址、限长、优先级等各种属性，这就得到了段的起始地址（基址），再以基址加上偏移地址yyyyyyyy才得到最后的线性地址。</p>
+<p><span style="background-color: #0000ff; font-size: x-large; color: #ff00ff;">扩展</span></p>
+<p>除了GDTR、LDTR外还有<span style="background-color: #ff00ff;">IDTR和TR</span></p>
+<p><span style="background-color: #00ff00;">（1）中断描述符表寄存器IDTR&nbsp;</span></p>
+<p>与GDTR的作用类似，IDTR寄存器用于存放中断描述符表IDT的32位线性基地址和16位表长度值。指令LIDT和SIDT分别用于加载和保存IDTR寄存器的内容。在机器刚加电或处理器复位后，基地址被默认地设置为0，而长度值被设置成0xFFFF。</p>
+<p><span style="background-color: #00ff00;">（2）任务寄存器TR</span></p>
+<p>TR<span style="text-indent: 2em;">用于寻址一个特殊的任务状态段</span>（Task&nbsp;State&nbsp;Segment，TSS）。TSS中包含着当前执行任务的重要信息。</p>
+<p>TR寄存器用于存放当前任务TSS段的16位段选择符、32位基地址、16位段长度和描述符属性值。它引用GDT表中的一个TSS类型的描述符。指令LTR和STR分别用于加载和保存TR寄存器的段选择符部分。当使用LTR指令把选择符加载进任务寄存器时，TSS描述符中的段基地址、段限长度以及描述符属性会被自动加载到任务寄存器中。当执行任务切换时，处理器会把新任务的TSS的段选择符和段描述符自动加载进任务寄存器TR中。</p>
+														</div>
+							</div>
+			<div class="back_b">
+				<a href="javascript:void(0);" onclick="history.back();">返回</a>
+			</div>
+			<div class="clear"></div>
+			<!-- end: entry -->
+			<i class="lt"></i>
+			<i class="rt"></i>
+		</div>
+		<div class="entry_sb">
+			<i class="lb"></i>
+			<i class="rb"></i>
+		</div>
+		<!-- ad -->
+								<div class="context_b">
+			【上篇】<a href="http://www.techbulo.com/703.html" rel="prev">A20 地址线问题全面解析</a><br>【下篇】<a href="http://www.techbulo.com/722.html" rel="next">chm文件 已取消到该网页的导航，解决打不开问题！</a>			<i class="lt"></i>
+			<i class="rt"></i>
+			<i class="lb"></i>
+			<i class="rb"></i>
+		</div>
+		<!-- relatedposts -->
+		<div class="entry_b">
+	<div class="relatedposts">
+<h4>您可能还会对这些文章感兴趣！</h4>
+<ol>
+		<li><a href="http://www.techbulo.com/869.html">《自己动手写操作系统》学习笔记(三)</a></li>
+		<li><a href="http://www.techbulo.com/2245.html">IIC总线----介绍</a></li>
+		<li><a href="http://www.techbulo.com/2238.html">Linux中list_head结构体相关</a></li>
+		<li><a href="http://www.techbulo.com/2233.html">elf转化成bin后，bin文件变大的问题 &lt;转&gt;</a></li>
+		<li><a href="http://www.techbulo.com/2230.html">位置无关代码（PIC）的思考&lt;转&gt;</a></li>
+		<li><a href="http://www.techbulo.com/2163.html">linux kernel 信号量、互斥锁、自旋锁(转)</a></li>
+		<li><a href="http://www.techbulo.com/2146.html">Linux设备树的由来--[把正确的代码，放到正确的位置]</a></li>
+		<li><a href="http://www.techbulo.com/2135.html">视频采集入门与处理（BT656简介）[转]</a></li>
+	</ol>
+</div>	<div class="related_img">
+		<div class="related_img_box">
+		<div class="thumbnail_t">
+	</div>
+<!-- 截图 -->
+<div class="thumbnail">
+	<a href="http://www.techbulo.com/1855.html" rel="bookmark" title="Tiny4412 Linux驱动之按键（使用中断）">
+		<img class="home-thumb" width="140px" height="100px" alt="Tiny4412 Linux驱动之按键（使用中断）" original="http://www.techbulo.com/wp-content/uploads/2015/11/key_irq-283x300.png" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/key_irq-283x300.png" style="display: block;">
+	</a>
+	</div>
+	</div>
+		<div class="related_img_box">
+		<div class="thumbnail_t">
+	</div>
+<!-- 截图 -->
+<div class="thumbnail">
+	<a href="http://www.techbulo.com/1088.html" rel="bookmark" title="MFC 消息映射机制剖析">
+		<img class="home-thumb" width="140px" height="100px" alt="MFC 消息映射机制剖析" original="http://www.techbulo.com/wp-content/themes/HotNewspro/images/random/18.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/18.jpg" style="display: block;">
+	</a>
+	</div>
+	</div>
+		<div class="related_img_box">
+		<div class="thumbnail_t">
+	</div>
+<!-- 截图 -->
+<div class="thumbnail">
+	<a href="http://www.techbulo.com/1576.html" rel="bookmark" title="Makefile 中的.PHONY">
+		<img class="home-thumb" width="140px" height="100px" alt="Makefile 中的.PHONY" original="http://www.techbulo.com/wp-content/themes/HotNewspro/images/random/12.jpg" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/12.jpg" style="display: block;">
+	</a>
+	</div>
+	</div>
+		<div class="related_img_box">
+		<div class="thumbnail_t">
+	</div>
+<!-- 截图 -->
+<div class="thumbnail">
+	<a href="http://www.techbulo.com/1897.html" rel="bookmark" title="malloc的内存分配之 malloc(0)的内存分配情况">
+		<img class="home-thumb" width="140px" height="100px" alt="malloc的内存分配之 malloc(0)的内存分配情况" original="http://www.techbulo.com/wp-content/uploads/2015/12/malloc-300x174.gif" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/malloc-300x174.gif" style="display: block;">
+	</a>
+	</div>
+	</div>
+		</div>	<div class="clear"></div>
+		<i class="lt"></i>
+		<i class="rt"></i>
+</div>
+<div class="entry_sb">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div>		<!-- end: relatedposts -->
+		<!-- entrymeta -->
+		<div class="entrymeta">
+			<div class="authorbio">
+				<div class="author_pic">
+					<img alt="" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/3d02075d6112ba805e95f520e5ae7198" class="avatar avatar-48 photo" height="48" width="48">				</div>
+				<div class="clear"></div>
+				<div class="author_text">
+					<h4>作者: <span><a href="http://www.techbulo.com/author/admin" title="由techbulo发布" rel="author">techbulo</a></span></h4>
+				</div>
+			</div>
+			<span class="spostinfo">
+				<ul>
+					<li>该日志由 techbulo 于4年前发表在<a href="http://www.techbulo.com/category/tech/base" rel="category tag">基础知识</a>分类下，最后更新于 2013年12月25日.</li>
+					<li>转载请注明: <a href="http://www.techbulo.com/708.html" rel="bookmark" title="本文固定链接 http://www.techbulo.com/708.html">GDT,LDT,GDTR,LDTR 详解,包你理解透彻 | 技术部落</a><a href="http://www.techbulo.com/708.html#" onclick="copy_code(&#39;http://www.techbulo.com/708.html&#39;); return false;"> +复制链接</a></li>
+					<li class="content_tag">关键字: <a href="http://www.techbulo.com/tag/gdt" rel="tag">GDT</a>, <a href="http://www.techbulo.com/tag/gdtr" rel="tag">GDTR</a>, <a href="http://www.techbulo.com/tag/ldt" rel="tag">LDT</a>, <a href="http://www.techbulo.com/tag/ldtr" rel="tag">LDTR</a></li>
+				</ul>
+			</span>
+			<i class="lt"></i>
+			<i class="rt"></i>
+			<div class="clear"></div>
+		</div>
+		<div class="entry_sb">
+			<i class="lb"></i>
+			<i class="rb"></i>
+		</div>
+		<!-- end: entrymeta -->
+	<div class="ct"></div>
+		</div>
+<!-- end: content -->
+<div id="sidebar">
+	
+		<div id="tabs">
+	<div class="box_top">
+		<i class="rt"></i>
+	</div>
+	<ul class="htotabs">
+		<li class="widget1"><a href="http://www.techbulo.com/708.html#tab-widget1" class="selected">最新文章</a></li>
+		<li class="widget2"><a href="http://www.techbulo.com/708.html#tab-widget2">近期热门</a></li>
+		<li class="widget3"><a href="http://www.techbulo.com/708.html#tab-widget3">分类目录</a></li>
+		<div class="clear"></div>
+	</ul>
+	<div class="tab-inside">
+		<ul id="tab-widget1" style="display: block;">
+			<div class="tab_latest">
+				<ul>
+										<li><a href="http://www.techbulo.com/2305.html" rel="bookmark" title="详细阅读 YUV格式数据接收，显示灰度图像到VGA">YUV格式数据接收，显示灰度图像到</a></li>
+										<li><a href="http://www.techbulo.com/2289.html" rel="bookmark" title="详细阅读 简单字符叠加测试，画框及十字线、中英文显示">简单字符叠加测试，画框及十字线、中</a></li>
+										<li><a href="http://www.techbulo.com/2281.html" rel="bookmark" title="详细阅读 终于出图像了，记录一下">终于出图像了，记录一下</a></li>
+										<li><a href="http://www.techbulo.com/2276.html" rel="bookmark" title="详细阅读 sdram 控制器代码（使用VHDL编写）">sdram 控制器代码（使用VHDL编写</a></li>
+										<li><a href="http://www.techbulo.com/2261.html" rel="bookmark" title="详细阅读 IIC总线—-iic master使用VHDL的FPGA实现">IIC总线—-iic master使用VHD</a></li>
+										<li><a href="http://www.techbulo.com/2245.html" rel="bookmark" title="详细阅读 IIC总线—-介绍">IIC总线----介绍</a></li>
+										<li><a href="http://www.techbulo.com/2238.html" rel="bookmark" title="详细阅读 Linux中list_head结构体相关">Linux中list_head结构体相关</a></li>
+										<li><a href="http://www.techbulo.com/2233.html" rel="bookmark" title="详细阅读 elf转化成bin后，bin文件变大的问题 ">elf转化成bin后，bin文件变大的问题</a></li>
+										<li><a href="http://www.techbulo.com/2230.html" rel="bookmark" title="详细阅读 位置无关代码（PIC）的思考">位置无关代码（PIC）的思考&lt;转&gt;</a></li>
+										<li><a href="http://www.techbulo.com/2226.html" rel="bookmark" title="详细阅读 2017年最后一篇文章，再见，迎接2018">2017年最后一篇文章，再见，迎接201</a></li>
+									</ul>
+				<div class="clear"></div>
+			</div>
+		</ul>
+		<ul id="tab-widget2" style="display: none;">
+			<div class="tab_latest">
+				<ul>
+				    				</ul>
+			</div>
+  		</ul>
+		<ul id="tab-widget3" style="display: none;"> 
+			<div class="categories_c">
+				<ul>
+				    	<li class="cat-item cat-item-273"><a href="http://www.techbulo.com/category/tech/tiny4412/android">android</a>
+</li>
+	<li class="cat-item cat-item-84"><a href="http://www.techbulo.com/category/tech/bootloader">Bootloader</a>
+</li>
+	<li class="cat-item cat-item-240"><a href="http://www.techbulo.com/category/fpga">FPGA开发</a>
+</li>
+	<li class="cat-item cat-item-271"><a href="http://www.techbulo.com/category/tech/tiny4412/linux">linux</a>
+</li>
+	<li class="cat-item cat-item-63"><a href="http://www.techbulo.com/category/tech/rtos">RTOS</a>
+</li>
+	<li class="cat-item cat-item-270"><a href="http://www.techbulo.com/category/tech/tiny4412/u-boot">u-boot</a>
+</li>
+	<li class="cat-item cat-item-67"><a href="http://www.techbulo.com/category/tech/rtos/ucos-ii">UCOS-II</a>
+</li>
+	<li class="cat-item cat-item-89"><a href="http://www.techbulo.com/category/tech/base">基础知识</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="http://www.techbulo.com/category/tools">工具配置</a>
+</li>
+	<li class="cat-item cat-item-8"><a href="http://www.techbulo.com/category/question">常见问题</a>
+</li>
+	<li class="cat-item cat-item-87"><a href="http://www.techbulo.com/category/tech/app">应用开发</a>
+</li>
+	<li class="cat-item cat-item-217"><a href="http://www.techbulo.com/category/tech/hacklinux/sysfs-hacklinux">我是Sysfs</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="http://www.techbulo.com/category/tech">技术文章</a>
+</li>
+	<li class="cat-item cat-item-85"><a href="http://www.techbulo.com/category/tech/os">操作系统</a>
+</li>
+	<li class="cat-item cat-item-272"><a href="http://www.techbulo.com/category/tech/tiny4412/rootfs">文件系统</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://www.techbulo.com/category/env">环境搭建</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://www.techbulo.com/category/life">生活点滴</a>
+</li>
+	<li class="cat-item cat-item-90"><a href="http://www.techbulo.com/category/tech/elec">电子技术</a>
+</li>
+	<li class="cat-item cat-item-83"><a href="http://www.techbulo.com/category/tech/bare">裸机开发</a>
+</li>
+	<li class="cat-item cat-item-269"><a href="http://www.techbulo.com/category/tech/tiny4412/noos">裸机程序</a>
+</li>
+	<li class="cat-item cat-item-7"><a href="http://www.techbulo.com/category/down">软件下载</a>
+</li>
+	<li class="cat-item cat-item-88"><a href="http://www.techbulo.com/category/tech/driver">驱动开发</a>
+</li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+		</ul>
+	</div>
+</div>
+<div class="box-bottom">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	jQuery( '.htotabs').each(function(){
+		jQuery(this).children( 'li').children( 'a:first').addClass( 'selected' ); // Add .selected class to first tab on load
+	});
+	jQuery( '.tab-inside > *').hide();
+	jQuery( '.tab-inside > *:first-child').show();
+	jQuery( '.htotabs li a').mouseover(function(evt){ // Init Click funtion on Tabs
+		var clicked_tab_ref = jQuery(this).attr( 'href' ); // Strore Href value
+		jQuery(this).parent().parent().children( 'li').children( 'a').removeClass( 'selected' ); //Remove selected from all tabs
+		jQuery(this).addClass( 'selected' );
+		jQuery(this).parent().parent().parent().children( '.tab-inside').children( '*').hide();
+		jQuery( '.tab-inside ' + clicked_tab_ref).fadeIn(100);
+		 evt.preventDefault();
+	})
+})
+</script>		
+		<div class="widget">
+					</div>
+		<div class="widget">
+		<h3>赞助本站（使用微信扫一扫）</h3><div class="box"><a href="http://www.techbulo.com/blog"><img width="230" height="230" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/wx-300x300.png" class="image wp-image-2312  attachment-230x230 size-230x230" alt="wx" style="max-width: 100%; height: auto;" srcset="http://www.techbulo.com/wp-content/uploads/2018/04/wx-300x300.png 300w, http://www.techbulo.com/wp-content/uploads/2018/04/wx-150x150.png 150w, http://www.techbulo.com/wp-content/uploads/2018/04/wx.png 708w" sizes="(max-width: 230px) 100vw, 230px"></a></div>
+    	<div class="box-bottom">
+			<i class="lb"></i>
+			<i class="rb"></i>
+		</div><h3>百度站内搜索</h3>
+<div class="box_c">
+	<div class="search_k">
+		<form action="http://www.baidu.com/baidu" target="_blank">
+		<input name="word" size="26" maxlength="100" class="swap_value">
+		<input type="image" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/go.gif" id="go" alt="Search" title="搜索">
+		<input name="tn" type="hidden" value="bds">
+		<input name="cl" type="hidden" value="3">
+		<input name="ct" type="hidden" value="2097152">
+		<input name="si" type="hidden" value="techbulo.com">
+		<input name="si" type="hidden" value="">
+		</form>
+	</div>
+</div>
+<div class="box-bottom">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div><div class="ad">
+	<div class="ads">
+	<div class="box_top">
+		<i class="rt"></i>
+		<i class="lt"></i>
+	</div>
+		<div class="ads_c"><p align="center"><iframe scrolling="no" frameborder="0" width="220" height="220" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/a2.html"></iframe><script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/1.js" async="async"></script></p>
+			<div class="clear"></div>
+		</div>
+		<div class="box-bottom">
+			<i class="lb"></i>
+			<i class="rb"></i>
+		</div>
+	</div>
+</div><div class="box_top">
+	<i class="rt"></i>
+	<i class="lt"></i>
+</div>
+<div class="categories">
+	<div class="tag_c"><a href="http://www.techbulo.com/tag/ddr%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86" class="tag-cloud-link tag-link-291 tag-link-position-1" style="color:#7fc529;font-size: 12.716417910448px;" aria-label="DDR工作原理 (3个项目);">DDR工作原理</a>
+<a href="http://www.techbulo.com/tag/gdt" class="tag-cloud-link tag-link-150 tag-link-position-2" style="color:#a1fd96;font-size: 12px;" aria-label="GDT (2个项目);">GDT</a>
+<a href="http://www.techbulo.com/tag/gdtr" class="tag-cloud-link tag-link-152 tag-link-position-3" style="color:#4afb30;font-size: 12px;" aria-label="GDTR (2个项目);">GDTR</a>
+<a href="http://www.techbulo.com/tag/io%e5%a4%9a%e8%b7%af%e5%a4%8d%e7%94%a8" class="tag-cloud-link tag-link-311 tag-link-position-4" style="color:#5ea055;font-size: 12.716417910448px;" aria-label="IO多路复用 (3个项目);">IO多路复用</a>
+<a href="http://www.techbulo.com/tag/kobject" class="tag-cloud-link tag-link-210 tag-link-position-5" style="color:#e344cd;font-size: 12.716417910448px;" aria-label="kobject (3个项目);">kobject</a>
+<a href="http://www.techbulo.com/tag/kset" class="tag-cloud-link tag-link-211 tag-link-position-6" style="color:#26cfe9;font-size: 12.716417910448px;" aria-label="kset (3个项目);">kset</a>
+<a href="http://www.techbulo.com/tag/ldt" class="tag-cloud-link tag-link-151 tag-link-position-7" style="color:#b5cc9e;font-size: 12px;" aria-label="LDT (2个项目);">LDT</a>
+<a href="http://www.techbulo.com/tag/ldtr" class="tag-cloud-link tag-link-153 tag-link-position-8" style="color:#fe7210;font-size: 12px;" aria-label="LDTR (2个项目);">LDTR</a>
+<a href="http://www.techbulo.com/tag/linux%e5%86%85%e6%a0%b8%e5%bc%82%e5%b8%b8%e4%bd%93%e7%b3%bb" class="tag-cloud-link tag-link-373 tag-link-position-9" style="color:#f2f1b7;font-size: 12px;" aria-label="Linux内核异常体系 (2个项目);">Linux内核异常体系</a>
+<a href="http://www.techbulo.com/tag/linux%e8%ae%be%e5%a4%87%e9%a9%b1%e5%8a%a8" class="tag-cloud-link tag-link-302 tag-link-position-10" style="color:#d03455;font-size: 15.761194029851px;" aria-label="linux设备驱动 (12个项目);">linux设备驱动</a>
+<a href="http://www.techbulo.com/tag/linux%e9%82%a3%e4%ba%9b%e4%ba%8b%e5%84%bf" class="tag-cloud-link tag-link-215 tag-link-position-11" style="color:#89bfd;font-size: 13.313432835821px;" aria-label="Linux那些事儿 (4个项目);">Linux那些事儿</a>
+<a href="http://www.techbulo.com/tag/redhat-linux" class="tag-cloud-link tag-link-137 tag-link-position-12" style="color:#293729;font-size: 12px;" aria-label="RedHat Linux (2个项目);">RedHat Linux</a>
+<a href="http://www.techbulo.com/tag/stm32%e5%90%af%e5%8a%a8%e6%96%87%e4%bb%b6" class="tag-cloud-link tag-link-118 tag-link-position-13" style="color:#fe59fe;font-size: 12px;" aria-label="STM32启动文件 (2个项目);">STM32启动文件</a>
+<a href="http://www.techbulo.com/tag/tiny4412-linux%e9%a9%b1%e5%8a%a8" class="tag-cloud-link tag-link-370 tag-link-position-14" style="color:#6b1f83;font-size: 13.791044776119px;" aria-label="Tiny4412 linux驱动 (5个项目);">Tiny4412 linux驱动</a>
+<a href="http://www.techbulo.com/tag/tiny4412%e8%a3%b8%e6%9c%ba%e7%a8%8b%e5%ba%8f" class="tag-cloud-link tag-link-280 tag-link-position-15" style="color:#4b1209;font-size: 16px;" aria-label="Tiny4412裸机程序 (13个项目);">Tiny4412裸机程序</a>
+<a href="http://www.techbulo.com/tag/v4l2%e6%a1%86%e6%9e%b6" class="tag-cloud-link tag-link-252 tag-link-position-16" style="color:#45f115;font-size: 12px;" aria-label="V4L2框架 (2个项目);">V4L2框架</a>
+<a href="http://www.techbulo.com/tag/vhdl" class="tag-cloud-link tag-link-403 tag-link-position-17" style="color:#bbd77e;font-size: 12px;" aria-label="vhdl (2个项目);">vhdl</a>
+<a href="http://www.techbulo.com/tag/vhdl-%e8%af%ad%e6%b3%95" class="tag-cloud-link tag-link-408 tag-link-position-18" style="color:#277c26;font-size: 12.716417910448px;" aria-label="vhdl 语法 (3个项目);">vhdl 语法</a>
+<a href="http://www.techbulo.com/tag/%e4%b8%89%e6%9e%81%e7%ae%a1%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86" class="tag-cloud-link tag-link-249 tag-link-position-19" style="color:#b35939;font-size: 12.716417910448px;" aria-label="三极管工作原理 (3个项目);">三极管工作原理</a>
+<a href="http://www.techbulo.com/tag/%e4%b8%89%e6%9e%81%e7%ae%a1%e7%94%b5%e6%b5%81%e6%b5%81%e5%90%91" class="tag-cloud-link tag-link-248 tag-link-position-20" style="color:#af6f6b;font-size: 12.716417910448px;" aria-label="三极管电流流向 (3个项目);">三极管电流流向</a>
+<a href="http://www.techbulo.com/tag/%e4%bf%9d%e6%8a%a4%e6%a8%a1%e5%bc%8f%e4%b8%8b%e5%af%bb%e5%9d%80" class="tag-cloud-link tag-link-179 tag-link-position-21" style="color:#3e526;font-size: 12px;" aria-label="保护模式下寻址 (2个项目);">保护模式下寻址</a>
+<a href="http://www.techbulo.com/tag/%e4%bf%9d%e6%8a%a4%e6%a8%a1%e5%bc%8f%e8%b7%b3%e8%bd%ac%e5%88%b0%e5%ae%9e%e6%a8%a1%e5%bc%8f" class="tag-cloud-link tag-link-186 tag-link-position-22" style="color:#188847;font-size: 12px;" aria-label="保护模式跳转到实模式 (2个项目);">保护模式跳转到实模式</a>
+<a href="http://www.techbulo.com/tag/%e5%bc%95%e5%af%bc%e7%a8%8b%e5%ba%8f" class="tag-cloud-link tag-link-123 tag-link-position-23" style="color:#cb579b;font-size: 12px;" aria-label="引导程序 (2个项目);">引导程序</a>
+<a href="http://www.techbulo.com/tag/%e8%87%aa%e5%b7%b1%e5%8a%a8%e6%89%8b%e5%86%99%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f" class="tag-cloud-link tag-link-132 tag-link-position-24" style="color:#5a578;font-size: 14.208955223881px;" aria-label="自己动手写操作系统 (6个项目);">自己动手写操作系统</a>
+<a href="http://www.techbulo.com/tag/%e8%ae%be%e5%a4%87%e6%a8%a1%e5%9e%8b" class="tag-cloud-link tag-link-212 tag-link-position-25" style="color:#120591;font-size: 12.716417910448px;" aria-label="设备模型 (3个项目);">设备模型</a></div>
+</div>
+<div class="clear"></div>
+<div class="box-bottom">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div>	</div>
+
+	
+	
+			
+	<div class="widget">
+			</div>
+
+		<div class="widget">
+					</div>
+	
+	<h3>网站统计</h3>	
+<div class="statistics">
+	<div class="box_c">
+		<ul>日志：271篇</ul>
+		<ul>评论：402条</ul>
+		<ul>分类：38个</ul>
+		<ul>标签：358个</ul>
+		<ul>链接：4个</ul>
+		<ul>运行：1632天</ul>
+		最后更新：2018年4月16日	</div>
+	<div class="clear"></div>
+</div>
+<div class="box-bottom">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div>	<div class="clear"></div>
+
+			</div><div class="clear"></div>
+<div class="footer_top">
+	<div id="menu">
+		<div class="menu-%e9%a1%b5%e8%84%9a%e8%8f%9c%e5%8d%95-container"><ul id="menu-%e9%a1%b5%e8%84%9a%e8%8f%9c%e5%8d%95" class="menu"><li id="menu-item-204" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-204"><a href="http://www.techbulo.com/category/tools">工具配置</a></li>
+<li id="menu-item-205" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-205"><a href="http://www.techbulo.com/category/question">常见问题</a></li>
+<li id="menu-item-206" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-206"><a href="http://www.techbulo.com/category/tech">技术文章</a></li>
+<li id="menu-item-207" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-207"><a href="http://www.techbulo.com/category/env">环境搭建</a></li>
+<li id="menu-item-210" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-210"><a href="http://www.techbulo.com/videos/video">视频教程</a></li>
+<li id="menu-item-209" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-209"><a href="http://www.techbulo.com/category/down">软件下载</a></li>
+<li id="menu-item-244" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-244"><a href="http://www.techbulo.com/category/tech/rtos">嵌入式实时操作系统</a></li>
+<li id="menu-item-1051" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1051"><a href="http://www.techbulo.com/category/tech/hacklinux">Linux那些事儿</a></li>
+</ul></div>	</div>
+	<h2 class="blogtitle">
+	<a href="http://www.techbulo.com/" title="技术部落">返回首页</a></h2>
+		<big class="lt"></big>
+	<big class="rt"></big>
+</div>
+<!-- 页脚 -->
+<div class="footer_bottom_a">
+	Copyright © 2013-2018 技术部落&nbsp;&nbsp;保留所有权利.
+	&nbsp;&nbsp;Theme by <a target="_blank" href="http://zmingcx.com/" title="主题：知更鸟">Robin</a>
+	<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?d5fb7bbe31cec5b0ac42a0c3cad271c9";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+	<big class="lb"></big>
+	<big class="rb"></big>
+</div>
+<!-- 首页页脚 -->
+ <div class="clear"></div>
+</div>
+<script type="text/javascript" src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/wp-embed.min.js"></script>
+
+<div id="gg">
+	<div class="close"><a href="javascript:void(0)" onclick="$(&#39;#gg&#39;).slideUp(&#39;slow&#39;);" title="关闭">×</a>
+	<div id="feedb"><a href="http://www.techbulo.com/feed" title="欢迎订阅本站" class="image"><img src="./GDT,LDT,GDTR,LDTR 详解,包你理解透彻 _ 技术部落_files/feed.gif"></a></div>
+	<div class="bulletin">
+		<ul style="margin-top: 0px;">
+						
+					<li><a href="http://www.techbulo.com/bulletin/welcome" title="细看 老站新貌，欢迎大家访问">技术部落是一个专注于嵌入式开发的网站，包括嵌入式开发环境搭建、常用工具软件的下载与配置、裸机程序...</a></li></ul>
+	</div>
+</div>
+<script type="text/javascript">
+ // 关闭
+function turnoff(obj){
+document.getElementById(obj).style.display="none";
+}
+ // 文字滚动
+    (function($){
+    $.fn.extend({
+    Scroll:function(opt,callback){
+    if(!opt) var opt={};
+    var _this=this.eq(0).find("ul:first");
+    var        lineH=_this.find("li:first").height(),
+    line=opt.line?parseInt(opt.line,10):parseInt(this.height()/lineH,10),
+    speed=opt.speed?parseInt(opt.speed,10):7000, //卷动速度，数值越大，速度越慢（毫秒）
+    timer=opt.timer?parseInt(opt.timer,10):7000; //滚动的时间间隔（毫秒）
+    if(line==0) line=1;
+    var upHeight=0-line*lineH;
+    scrollUp=function(){
+    _this.animate({
+    marginTop:upHeight
+    },speed,function(){
+    for(i=1;i<=line;i++){
+    _this.find("li:first").appendTo(_this);
+    }
+    _this.css({marginTop:0});
+    });
+    }
+    _this.hover(function(){
+    clearInterval(timerID);
+    },function(){
+    timerID=setInterval("scrollUp()",timer);
+    }).mouseout();
+    }
+    })
+    })(jQuery);
+    $(document).ready(function(){
+    $(".bulletin").Scroll({line:1,speed:1000,timer:5000});//修改此数字调整滚动时间
+    });
+</script></div><div id="fancybox-tmp"></div><div id="fancybox-loading"><div></div></div><div id="fancybox-overlay"></div><div id="fancybox-wrap"><div id="fancybox-outer"><div id="fancybox-content"></div><a id="fancybox-close"></a><div id="fancybox-title"></div><a href="javascript:;" id="fancybox-left"><span class="fancy-ico" id="fancybox-left-ico"></span></a><a href="javascript:;" id="fancybox-right"><span class="fancy-ico" id="fancybox-right-ico"></span></a></div></div></body></html>

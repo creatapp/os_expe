@@ -1,0 +1,196 @@
+body {
+    background-color: black;
+    font-family: Verdana;
+}
+
+#contents {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1000px;
+    background-color: white;
+    box-shadow: 0px 0px 10px 20px white;
+}
+
+h1 {
+    background: black;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 250%;
+    text-transform: uppercase;
+    font-variant: small-caps;
+}
+
+h2 {
+    background: black;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 180%;
+    text-transform: uppercase;
+    font-variant: small-caps;
+    border-radius: 5px;
+}
+
+h3 {
+    margin-top: 20px;
+    padding: 5px;
+    background: #DDD;
+}
+
+.input-box {
+  background:#FF4444;
+  width: 100px;
+}
+
+.correct {
+  background:#AAFFAA;
+}
+
+.input-box {
+  text-align:center;
+}
+
+.question {
+  margin: 5px auto;
+  width:80%;
+  padding:5px 10px;
+  box-shadow:5px 5px gray;
+  border:1px solid;  
+}
+
+.hex {
+  font-family:Courier;
+}
+
+.bytebox {
+  font-family:Courier;
+  border:1px solid;
+}
+
+table.exercise {
+  margin: 20px auto;
+  width:50%;
+  color:#333333;
+  border-collapse:collapse;
+}
+
+table.exercise th {
+  background: #7788FF;
+  padding:5px;
+  border-style:solid;
+  border-width:1px;
+  border-color:#666666;
+}
+
+table.exercise td {
+  background: #DDDDDD;
+  padding:5px;
+  border-style:solid;
+  border-width:1px;
+  border-color:#666666;
+  text-align:center;
+}
+
+#partition-layout-exercise tr td:nth-child(1) {
+  font-weight: bold;
+}
+
+.reference {
+  margin: 20px auto;
+  width:90%;
+  color:#333333;
+  border-collapse:collapse;
+}
+
+.reference th {
+  background: #7788FF;
+  padding:5px;
+  border-style:solid;
+  border-width:1px;
+  border-color:#666666;
+}
+
+.reference td {
+  background: #DDDDDD;
+  padding:5px;
+  border-style:solid;
+  border-width:1px;
+  border-color:#666666;
+}
+
+#boot-sector tr td:nth-child(2) {
+  text-align:center;
+}
+
+#directory-entry tr td:nth-child(1) {
+  text-align:center;
+}
+
+#directory-entry tr td:nth-child(2) {
+  text-align:center;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#attributes td:nth-child(1) {
+    text-align: center;
+}
+
+#attributes td:nth-child(2) {
+    text-align: left;
+}
+
+#toc {
+    width: 50%;
+    margin: 10px auto;
+    background: #DDD;
+    padding-bottom: 10px;
+}
+
+#toc h2 {
+    font-size: 80%;
+}
+
+#toc ul li a {
+    color: black;
+}
+
+div.boxed {
+    margin: 10px auto;
+    padding: 10px;
+    width: 80%;
+    border: solid 1px black;
+    box-shadow: 5px 5px gray;
+}
+
+.box-category {
+    font-weight: bold;
+    background: gray;
+    padding: 2px;
+}
+
+table.bytes {
+    font-family: monospace;
+    font-size: 150%;
+    border-collapse: collapse;
+}
+
+table.bytes td {
+    padding: 2px 5px;
+}
+
+td.hilight {
+    background: #FAA;
+}

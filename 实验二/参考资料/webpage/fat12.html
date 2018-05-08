@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)http://alexander.khleuven.be/courses/bs1/fat12/fat12.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <script src="./fat12_files/jquery.js"></script>
+    <script src="./fat12_files/sha1.js"></script>
+    <script src="./fat12_files/fat12.js"></script>
+    <link rel="stylesheet" type="text/css" href="./fat12_files/fat12.css">
+    <style>
+      #download-image {
+        text-align: center;
+        margin: 50px;
+      }
+
+      #download-image a {
+        background: gray;
+        border: 5px groove gray;
+        font-size: 200%;
+        padding: 20px;
+        color: #800;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Manual Analysis of the FAT12 File System</h1>
+    </header>
+
+    <div id="contents">
+    <section>
+      <section id="toc">
+        <h2>Table of Contents</h2>
+        <ul><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">Introduction</a></li><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">Overview</a></li><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">The Boot Sector</a></li><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">Partition Layout</a></li><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">Directories</a></li><li><a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#{id}">File Allocation Table</a></li></ul>
+      </section>
+
+      <section class="toc-elt">
+        <h2>Introduction</h2>
+        <div id="download-image">
+          <a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.img">Download this</a>
+        </div>
+
+        <p>In this lab, we are going to analyze how a file system stores its data on disk. Modern file systems
+        are relatively complicated, so we are going to look at how the old file system "FAT12" was used to
+        store files on floppy disks. FAT12 is the predecessor of FAT16 and FAT32 (which is still widely used
+        on USB sticks).</p>
+        <p>This document does not contain the full specification of FAT12. For a more detailed description of
+          the various structures that are used throughout this filesystem, take a look at the following resources:
+        </p>
+        <ul>
+          <li><a href="http://www.maverick-os.dk/FileSystemFormats/FAT12_FileSystem.html">http://www.maverick-os.dk/FileSystemFormats/FAT12_FileSystem.html</a></li>
+          <li><a href="http://www.ntfs.com/fat-systems.htm">http://www.ntfs.com/fat-systems.htm</a></li>
+          <li><a href="http://en.wikipedia.org/wiki/File_Allocation_Table">http://en.wikipedia.org/wiki/File_Allocation_Table</a></li>
+        </ul>
+        <p>The file fat12.img contains the raw contents of a floppy disk. To view the contents of this file, open
+          it in a hex editor. You can use the free hex editor xvi32, which is also available on the Programs
+          disk (P:). Students with their own laptops can download xvi32, or can download an alternative such
+          as <a href="http://www.softcircuits.com/cygnus/fe/">Cygnus</a>, <a href="http://www.microsoft.com/visualstudio/3">Visual Studio</a>,
+          <a href="http://ridiculousfish.com/hexfiend/4">Hex Fiend</a>, or <a href="http://www.suavetech.com/0xed/0xed.html">0xed</a>.
+        </p>
+        <p>
+          Take a few moments to get used to your hex editor. In particular, notice that the values of the bytes
+          (in hexadecimal notation) are show in the left column, and the corresponding ASCII value in the
+          right column. The number that precedes the rows is the start offset of the first byte in the row.
+        </p>
+      </section>
+
+      <section class="toc-elt">
+        <h2>Overview</h2>
+        <p>
+          A disk can be divided into multiple partitioned, with each partition having its own file system.
+          For this course, we will ignore this possibility and just assume a disk contains one single partition
+          which uses the FAT12 file system.
+        </p>
+        <p>
+          The disk is structured as follows:
+        </p>
+        <img class="center" src="./fat12_files/disk-overview.png" width="50%">
+        <p>
+          We give a short description of each part:
+        </p>
+        <ul>
+          <li>
+            When given a partition, we cannot assume anything about its contents (e.g. which file system
+            it contains). The boot sector provides this basic information. It also contains
+            the instructions necessary to launch the operating system.
+          </li>
+          <li>
+            A single FAT (File Allocation Table) describes how the data making up directories and files
+            is located on the disk. Without this information, one cannot know where
+            to look for files. Since this information is so crucial,
+            a disk can contain multiple copies of the FAT.
+          </li>
+          <li>
+            The root directory contains information about top level files and directories
+            (e.g. under Windows it would describe C:\ or D:\, etc.).
+          </li>
+          <li>
+            The data clusters contain information about all subdirectories and files in these subdirectories.
+          </li>
+      </ul></section>
+
+      <section class="toc-elt">
+        <h2>The Boot Sector</h2>
+        <p>Like any other partition, the first sector of a FAT12 volume is a special sector: the boot sector. It
+          contains information about the partition. The
+          boot sector (the first 512 bytes of the partition) is marked in yellow. The information stored in this
+          sector is defined in the table below. Fill in the bytes values where asked.
+        </p>
+        <table class="reference" id="boot-sector">
+          <tbody><tr>
+            <th>Offset</th>
+            <th>Length in bytes</th>
+            <th>Description</th>
+            <th width="200px">Bytes</th>
+          </tr>
+          <tr>
+            <td><span class="hex">0x00</span></td>
+            <td>3</td>
+            <td>Instruction(s) to jump to the bootstrap code</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="6f1133307673bd2fca81f068c0a87d849203cc59" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="85ba715700f24514598d1d863f040a4cc4c501ed" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="2d0c8af807ef45ac17cafb2973d866ba8f38caa9" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x03</span></td>
+            <td>8</td>
+            <td>Name of the formatting OS</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0B</span></td>
+            <td>2</td>
+            <td>Bytes per sector</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="bcac9d1d8eab3713ae489224d0130c9468e7a0e3" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0D</span></td>
+            <td>1</td>
+            <td>Sectors per cluster</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="ddfe163345d338193ac2bdc183f8e9dcff904b43" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0E</span></td>
+            <td>2</td>
+            <td>Reserved sectors from the start of the volume</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x10</span></td>
+            <td>1</td>
+            <td>Number of FAT copies</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="bcac9d1d8eab3713ae489224d0130c9468e7a0e3" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x11</span></td>
+            <td>2</td>
+            <td>Number of possible root entries</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="ddb0b8bbf60b728fce9ace252db2a1eef68119c7" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x13</span></td>
+            <td>2</td>
+            <td>Small number of sectors</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="af3e133428b9e25c55bc59fe534248e6a0c0f17b" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="b5a6ca48eb9a2f83047ebbe19897ad6bf987069d" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x15</span></td>
+            <td>1</td>
+            <td>Media descriptor</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x16</span></td>
+            <td>2</td>
+            <td>Sectors per FAT</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="4b581cdce6283495fd4934ce574ac47e92881c64" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x18</span></td>
+            <td>2</td>
+            <td>Sectors per track</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="7b52009b64fd0a2a49e6d8a939753077792b0554" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x1A</span></td>
+            <td>2</td>
+            <td>Number of heads</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="bcac9d1d8eab3713ae489224d0130c9468e7a0e3" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x1C</span></td>
+            <td>4</td>
+            <td>Hidden sectors</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x20</span></td>
+            <td>4</td>
+            <td>Large number of sectors (used when volume size exceeds 32MB)</td>
+            <td><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"><input class="input-box" style="width: 25px;" type="text" solution-hash="fb96549631c835eb239cd614cc6b5cb7d295121a" placeholder="xx"></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x24</span></td>
+            <td>1</td>
+            <td>Drive number</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x25</span></td>
+            <td>1</td>
+            <td>Reserved</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x26</span></td>
+            <td>1</td>
+            <td>Extended boot signature (indicates that the next three fields are available)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x27</span></td>
+            <td>4</td>
+            <td>Volume serial number</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x2B</span></td>
+            <td>11</td>
+            <td>Volume label (should be the same as in the root directory)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x36</span></td>
+            <td>8</td>
+            <td>File system type (should be FAT12)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x3E</span></td>
+            <td>448</td>
+            <td>Bootstrap code</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x1FE</span></td>
+            <td>2</td>
+            <td>Boot sector signature (should be <span class="hex">0xAA55</span>)</td>
+            <td></td>
+          </tr>
+        </tbody></table>
+        <p>
+          Use this table to verify the following properties:
+        </p>
+        <ul>
+          <li>The name of the OS is "<code>MSDOS5.0</code>".</li>
+          <li>
+            The number of bytes per sector is 512 (or <span class="hex">0x200</span> in hexadecimal).
+            See the note below.
+          </li>
+          <li>There is one reserved sector at the beginning of the partition.</li>
+          <li>
+            There is only 1 sector per cluster. This means that for the purpose of this lab,
+            a cluster is the same as a sector.
+          </li>
+          <li>The size of the disk is 1.44MB. (Note that one sector is 512 bytes.)</li>
+          <li>The file system is indeed "<code>FAT12</code>".</li>
+        </ul>
+        <div class="boxed" data-category="Important"><div class="box-category">Important</div>
+          <p>
+            Note that if a number is stored in 2 or 4 bytes, you should reverse these bytes!
+          </p>
+          <p>
+            For example, if you read the
+            bytes <code>A4 70</code>, this actually represents the number
+            <span class="hex">0x70A4</span>. This is because the Intel processor stores integers as
+            little endian (the least-significant byte comes first).
+          </p>
+          <p>
+            Likewise, <code>11 22 33 44</code> corresponds to
+            <code>0x44332211</code>.
+          </p>
+        </div>
+        <div class="question">
+          <p>
+            Convert the following bytes to decimal values:
+          </p>
+          <table class="exercise" id="convert-bytes">
+            <tbody><tr><th>Bytes</th><th>Decimal value</th></tr>
+            <tr>
+              <td><code>01</code></td>
+              <td><input class="input-box" type="text" solution-hash="356a192b7913b04c54574d18c28d46e6395428ab" placeholder="decimal"></td>
+            </tr>
+            <tr>
+              <td><code>FF 00</code></td>
+              <td><input class="input-box" type="text" solution-hash="3028f51407d83338f72f994bc283572452a877de" placeholder="decimal"></td>
+            </tr>
+            <tr>
+              <td><code>00 FF</code></td>
+              <td><input class="input-box" type="text" solution-hash="52df1422f88f4728d37576863fa71d81399abe14" placeholder="decimal"></td>
+            </tr>
+            <tr>
+              <td><code>01 02 03 04</code></td>
+              <td><input class="input-box" type="text" solution-hash="cd95271dbb3ec4ba23dd650240997f4c4d6af754" placeholder="decimal"></td>
+            </tr>
+          </tbody></table>
+        </div>
+      </section>
+
+      <section class="toc-elt">
+        <h2>Partition Layout</h2>
+        <p>After the boot sector, a number of copies of the File Allocation Table (FAT) are stored. Having
+          more than one copy can be useful if one of the copies gets corrupted due to bad disk blocks.</p>
+        <div class="question">
+          <label for="fat-count">How many copies of the FAT are there in the image?</label>
+          <input class="input-box" type="text" solution-hash="da4b9237bacccdf19c0760cab7aec4a8359010b0" placeholder="decimal">
+        </div>
+        <p>Each FAT has a certain size and thus requires a certain amount of space on disk.</p>
+        <div class="question">
+          How large is one FAT? <input class="input-box" type="text" solution-hash="0ade7c2cf97f75d009975f4d720d1fa6c19f4897" placeholder="decimal"> sectors, which is equal to
+          <input class="input-box" type="text" solution-hash="0ade7c2cf97f75d009975f4d720d1fa6c19f4897" placeholder="decimal"> clusters or <input class="input-box" type="text" solution-hash="80a57d8b02cb43cf464d98809e10ded1b8a249fe" placeholder="decimal"> bytes.
+        </div>
+        <p>
+          After the FATs, the contents of the root directory is stored. This root directory contains references
+          to the files and directories that are stored on the root of the partition (i.e. typically at A:\ in
+          Windows). Each file or directory entry is 32 bytes. The root directory has a maximum size, which
+          is preallocated (meaning it cannot grow or shrink, and is not part of the "normal" data area).
+        </p>
+        <div class="question">
+          How many file/directory entries can be stored in the root directory
+          (use <a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#boot-sector">Table 1</a>)?
+          <input class="input-box" type="text" solution-hash="bc15c774dca4499ea6fb42da7d216ca54f8c697e" placeholder="decimal">
+        </div>
+        <div class="question">
+          How large is the root directory, given that each entry is 32 bytes?
+          <input class="input-box" type="text" solution-hash="0d4d6c61e2c4d7fed230989c3e10b86d0e3e5f5b" placeholder="decimal"> bytes or <input class="input-box" type="text" solution-hash="fa35e192121eabf3dabf9f5ea6abdbcbc107ac3b" placeholder="decimal"> sectors.
+        </div>
+        <p>
+          All the remaining sectors after the root directory can be used to store folder (or subdirectory) data.
+          Now that you know how large each section is, you should be able to calculate the offsets of each
+          section in the image. Note that each section immediately follows the previous (i.e. there is no wasted
+          space in between).
+        </p>
+        <div class="question">
+          Compute the offsets of the following sections.
+          Verify with your hex editor that the offsets are correct.
+          <table class="exercise" id="partition-layout-exercise">
+            <tbody><tr>
+              <td>Boot sector</td>
+              <td><span class="hex">0x0000</span></td>
+            </tr>
+            <tr>
+              <td>FAT 1</td>
+              <td><span class="hex">0x0200</span></td>
+            </tr>
+            <tr>
+              <td>FAT 2</td>
+              <td><span class="hex">0x</span><input class="input-box" type="text" solution-hash="6f34a3e0e1af181e8a78e70c146682b7ead12846" placeholder="xxxx"></td>
+            </tr>
+            <tr>
+              <td>Root directory</td>
+              <td><span class="hex">0x</span><input class="input-box" type="text" solution-hash="50ce41dc05c4888b3cb778b060c044741b100565" placeholder="xxxx"></td>
+            </tr>
+            <tr>
+              <td>Data section</td>
+              <td><span class="hex">0x</span><input class="input-box" type="text" solution-hash="c79fce75b1583ddd36a96178757e0d8d0ac91228" placeholder="xxxx"></td>
+            </tr>
+          </tbody></table>
+        </div>
+      </section>
+
+      <section class="toc-elt">
+        <h2>Directories</h2>        
+        <p>
+          Each directory (including the root directory) consists of one or more sectors that contain directory
+          entries. A directory entry contains information about a subdirectory or file that is contained in the
+          directory. The structure of one such entry is shown <a href="http://alexander.khleuven.be/courses/bs1/fat12/fat12.html#table-2">below</a>. Note that the
+          size of an entry is 32 bytes.
+        </p>
+        <table class="reference" id="directory-entry">
+          <tbody><tr>
+            <th>Offset</th>
+            <th>Length in bytes</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><span class="hex">0x00</span></td>
+            <td>8</td>
+            <td>The filename</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x08</span></td>
+            <td>3</td>
+            <td>The file extension</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0B</span></td>
+            <td>1</td>
+            <td>File attributes</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0C</span></td>
+            <td>1</td>
+            <td>Reserved ofr Windows NT</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0D</span></td>
+            <td>1</td>
+            <td>Creation - Millsecond stamp (actual 100th of a second)</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x0E</span></td>
+            <td>2</td>
+            <td>Creation time</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x10</span></td>
+            <td>2</td>
+            <td>Creation date</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x12</span></td>
+            <td>2</td>
+            <td>Last access date</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x14</span></td>
+            <td>2</td>
+            <td>Reserved for FAT32</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x16</span></td>
+            <td>2</td>
+            <td>Last write time</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x18</span></td>
+            <td>2</td>
+            <td>Last write date</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x1A</span></td>
+            <td>2</td>
+            <td>First logical cluster of the file</td>
+          </tr>
+          <tr>
+            <td><span class="hex">0x1C</span></td>
+            <td>4</td>
+            <td>File size in bytes</td>
+          </tr>
+        </tbody></table>
+
+        <p>
+          As an example take the following 32 bytes:
+        </p>
+        <table class="center bytes">
+          <tbody><tr>
+            <td>54</td><td>45</td><td>53</td><td>54</td><td>20</td><td>20</td><td>20</td><td>20</td><td>44</td><td>44</td><td>20</td><td>20</td><td>00</td><td>64</td><td>85</td><td>1B</td>
+          </tr>
+          <tr>
+            <td>5A</td><td>33</td><td>5A</td><td>33</td><td>00</td><td>00</td><td>85</td><td>1B</td><td>5A</td><td>33</td><td>03</td><td>01</td><td>B0</td><td>04</td><td>00</td><td>00</td>
+          </tr>
+        </tbody></table>
+        <p>
+          Interpreting these as a directory in the FAT12 filesystem gives us the following results.
+        </p>
+
+        <section>
+          <h3>Name and Extension</h3>
+          <table class="center bytes">
+            <tbody><tr>
+              <td class="hilight">54</td><td class="hilight">45</td><td class="hilight">53</td><td class="hilight">54</td><td class="hilight">20</td><td class="hilight">20</td><td class="hilight">20</td><td class="hilight">20</td><td class="hilight">44</td><td class="hilight">44</td><td class="hilight">20</td><td>20</td><td>00</td><td>64</td><td>85</td><td>1B</td>
+            </tr>
+            <tr>
+              <td>5A</td><td>33</td><td>5A</td><td>33</td><td>00</td><td>00</td><td>85</td><td>1B</td><td>5A</td><td>33</td><td>03</td><td>01</td><td>B0</td><td>04</td><td>00</td><td>00</td>
+            </tr>
+          </tbody></table>
+
+          <p>
+            The first 8 bytes contain the filename. We can look up the corresponding ASCII characters in an ASCII table.
+            The filename becomes "<code>test&nbsp;&nbsp;&nbsp;&nbsp;</code>". The extension
+            (the following three bytes) will be "<code>dd&nbsp;</code>". Spaces are used as padding, so the actual filename is
+            <code>test.dd</code>.
+          </p>
+          <p>
+            The first byte of the filename is special and can have different meanings. The following rules apply:
+          </p>
+          <ol>
+            <li>
+              A value of <code>0x00</code> is interpreted as "stop the search, there are no more entries in this directory".
+            </li>
+            <li>
+              It must not contain the value <code>0x20</code> (space).
+            </li>
+            <li>
+              A value of <code>0xE5</code> is interpreted as "the entry is free".
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h3>Attributes</h3>
+        <table class="center bytes">
+          <tbody><tr>
+            <td>54</td><td>45</td><td>53</td><td>54</td><td>20</td><td>20</td><td>20</td><td>20</td><td>44</td><td>44</td><td>20</td><td class="hilight">20</td><td>00</td><td>64</td><td>85</td><td>1B</td>
+          </tr>
+          <tr>
+            <td>5A</td><td>33</td><td>5A</td><td>33</td><td>00</td><td>00</td><td>85</td><td>1B</td><td>5A</td><td>33</td><td>03</td><td>01</td><td>B0</td><td>04</td><td>00</td><td>00</td>
+          </tr>
+        </tbody></table>
+          <p>
+            The next byte contains the attributes of the file or directory. A number of attributes
+            can be set. If an attribute is set, a specific bit is set in the value of the byte (this is also called a bit
+            vector). There are 8 possible bits that can be set in the byte, but only the first 6 bits have a specific
+            meaning:
+          </p>
+          <table class="reference" id="attributes" style="width: 60%;">
+            <tbody><tr><th>Bit</th><th>Description</th></tr>
+            <tr><td>0</td><td>The file is read-only.</td></tr>
+            <tr><td>1</td><td>The file is hidden.</td></tr>
+            <tr><td>2</td><td>The file is a system file.</td></tr>
+            <tr><td>3</td><td>The directory entry contains a volume label.</td></tr>
+            <tr><td>4</td><td>The entry represents a directory (not a file).</td></tr>
+            <tr><td>5</td><td>The File should be archived (used for backup purposes).</td></tr>
+          </tbody></table>
+
+          <div class="question">
+            Convert <code>0x20</code> to binary: <input class="input-box" type="text" solution-hash="8eb3424da83fbc77be136a37ecb992528838b981" placeholder="8 bits">
+          </div>
+          
+          <p>
+            The binary value of the byte 20 is <code>00100000</code>. Bit 0 is the rightmost bit, bit 7 is the leftmost bit.
+            In this case, only the archive attribute is set for the file.
+          </p>
+        </section>
+
+        <section>
+          <h3>Time and Date</h3>
+          <table class="center bytes">
+            <tbody><tr>
+              <td>54</td><td>45</td><td>53</td><td>54</td><td>20</td><td>20</td><td>20</td><td>20</td><td>44</td><td>44</td><td>20</td><td>20</td><td>00</td><td>64</td><td class="hilight">85</td><td class="hilight">1B</td>
+            </tr>
+            <tr>
+              <td class="hilight">5A</td><td class="hilight">33</td><td class="hilight">5A</td><td class="hilight">33</td><td>00</td><td>00</td><td class="hilight">85</td><td class="hilight">1B</td><td class="hilight">5A</td><td class="hilight">33</td><td>03</td><td>01</td><td>B0</td><td>04</td><td>00</td><td>00</td>
+            </tr>
+          </tbody></table>
+
+          <p>
+            A directory entry contains the creation time, creation date, last access date, last
+            write time, and last write date. Both the time components and the date components use 2 bytes (or
+            16 bits) each. The bits are used as follows:
+          </p>
+          <p>
+            The time uses 5 bits to store the hours, 6 bits for the minutes and 5 for the seconds. Note that we
+            cannot store 60 values in the 5 bits that are allocated to the seconds component. This means that
+            we will only store even values, and that the calculated value should be doubled. In the example,
+            the bytes that store the last write time contain the values <code>85 1B</code>, which represents the number
+            <code>0x1B85</code> or its binary value <input class="input-box" type="text" solution-hash="d84fc085fbed699ce73f81e97d3eb6e650204294" placeholder="0x1B in binary"> <input class="input-box" type="text" solution-hash="9d333cb2682554ec279969e17cc870125dc24f0c" placeholder="0x85 in binary">.
+            From this value, we extract
+          </p>
+          <ul>
+            <li>
+              the hours: <input class="input-box" type="text" solution-hash="0925dae4728f374a933e3cdbd597ee2648b1c79b" placeholder="5 bits">, or <input class="input-box" type="text" solution-hash="77de68daecd823babbb58edb1c8e14d7106e83bb" placeholder="decimal">
+            </li>
+            <li>
+              the minutes: <input class="input-box" type="text" solution-hash="b719d0d461b1a391f267ddeac72970ee647d3ae5" placeholder="6 bits">, or <input class="input-box" type="text" solution-hash="0a57cb53ba59c46fc4b692527a38a87c78d84028" placeholder="decimal">
+            </li>
+            <li>
+              the seconds: <input class="input-box" type="text" solution-hash="7c4d66f7652a51c693ae4605ca686346af749c92" placeholder="5 bits">, or <input class="input-box" type="text" solution-hash="ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4" placeholder="decimal">, which multiplied by 2 gives <input class="input-box" type="text" solution-hash="b1d5781111d84f7b3fe45a0852e59758cd7a87e5" placeholder="decimal">
+            </li>
+          </ul>
+          <p>
+            The 16 bits in the date component are distributed as follows: 7 bits for the amount of years since
+            1980, 4 bits for the month, and 5 bits for the day. In the example, if we extract the last write date
+            you should get the date <input class="input-box" type="text" solution-hash="887309d048beef83ad3eabf2a79a64a389ab1c9f" placeholder="dd"><input class="input-box" type="text" solution-hash="b1d5781111d84f7b3fe45a0852e59758cd7a87e5" placeholder="mm"><input class="input-box" type="text" solution-hash="23a0538f53ccbf131a1f79874d3805ac4ed108fc" placeholder="yyyy">.
+          </p>
+        </section>
+
+        <section>
+          <h3>First Cluster</h3>
+          <table class="center bytes">
+            <tbody><tr>
+              <td>54</td><td>45</td><td>53</td><td>54</td><td>20</td><td>20</td><td>20</td><td>20</td><td>44</td><td>44</td><td>20</td><td>20</td><td>00</td><td>64</td><td>85</td><td>1B</td>
+            </tr>
+            <tr>
+              <td>5A</td><td>33</td><td>5A</td><td>33</td><td>00</td><td>00</td><td>85</td><td>1B</td><td>5A</td><td>33</td><td class="hilight">03</td><td class="hilight">01</td><td>B0</td><td>04</td><td>00</td><td>00</td>
+            </tr>
+          </tbody></table>
+
+          <p>
+            This 16-bit value contains the identification number of the first (logical) cluster that
+            contains the data of this file. If the directory entry is a subdirectory (i.e. has the "subdirectory"
+            attribute set), then it points to the first cluster that contains the directory entries of this subdirectory.
+            In the example, the bytes <code>03 01</code> represent the value <code>0x103</code>, thus the logical cluster 259 contains
+            the first chunk of the file.
+          </p>
+        </section>
+          
+        <section>
+          <h3>File Size</h3>
+          <table class="center bytes">
+            <tbody><tr>
+              <td>54</td><td>45</td><td>53</td><td>54</td><td>20</td><td>20</td><td>20</td><td>20</td><td>44</td><td>44</td><td>20</td><td>20</td><td>00</td><td>64</td><td>85</td><td>1B</td>
+            </tr>
+            <tr>
+              <td>5A</td><td>33</td><td>5A</td><td>33</td><td>00</td><td>00</td><td>85</td><td>1B</td><td>5A</td><td>33</td><td>03</td><td>01</td><td class="hilight">B0</td><td class="hilight">04</td><td class="hilight">00</td><td class="hilight">00</td>
+            </tr>
+          </tbody></table>
+          <p>
+            The file size is stored in the last 4 bytes of the directory entry. This limits the maximum
+            file size on a partition to 2<sup>32</sup> bytes or 4Gb. The bytes <code>B0 04 00 00</code> represent a filesize of
+            <span class="hex">0x</span><input class="input-box" type="text" solution-hash="386bbe814ac5593024af848188962f1b122ce087" placeholder="xxxx"> or <input class="input-box" type="text" solution-hash="73ee4958bdb5a056029ebd39b8abbaa3dbc0f333" placeholder="decimal"> bytes.
+          </p>
+        </section>
+
+        <div class="question">
+          Interpret the following directory entry:
+          <pre>            5A 57 41 52 54 4B 41 53 20 20 20 10 00 00 36 33
+            5A 33 5A 33 00 00 36 33 5A 33 40 01 00 00 00 00
+          </pre>
+          <ul>
+            <li>Filename and extension: <input class="input-box" type="text" solution-hash="733d61baa930200b25759df999b576b516f5e09c" case-sensitive="yes" placeholder="string"></li>
+            <li>Attributes (choose between read-only, hidden, system file, system file, volume label, directory and file): <input class="input-box" type="text" solution-hash="8d392f56d616a516ceabb82ed8906418bce4647d" case-sensitive="yes" placeholder="string"></li>
+            <li>Last write time: <input class="input-box" type="text" solution-hash="7316b3d5fef9b3562d32f7c39f154a3bc3ab9c58" placeholder="hh"><input class="input-box" type="text" solution-hash="f6e1126cedebf23e1463aee73f9df08783640400" placeholder="mm"><input class="input-box" type="text" solution-hash="98fbc42faedc02492397cb5962ea3a3ffc0a9243" placeholder="ss"></li>
+            <li>Last write date: <input class="input-box" type="text" solution-hash="887309d048beef83ad3eabf2a79a64a389ab1c9f" placeholder="dd"><input class="input-box" type="text" solution-hash="b1d5781111d84f7b3fe45a0852e59758cd7a87e5" placeholder="mm"><input class="input-box" type="text" solution-hash="23a0538f53ccbf131a1f79874d3805ac4ed108fc" placeholder="yyyy"></li>
+            <li>First cluster: <input class="input-box" type="text" solution-hash="7fdec83a2662ffe53af456402cbaeafa380b15b4" placeholder="decimal"></li>
+            <li>File size: <input class="input-box" type="text" solution-hash="b6589fc6ab0dc82cf12099d1c2d40ab994e8410c" placeholder="decimal"></li>
+          </ul>
+        </div>
+        <br>
+        <div class="question">
+          List the files and subdirectories of the root directory of fat12.img. Give the name,
+          size and first cluster of each entry. Ignore long file name entries.
+          <ul>
+            <li>Volume label: <input class="input-box" type="text" solution-hash="a3770b0345c61161f8f8106c300274267b2390f1" case-sensitive="yes" placeholder="string"></li>
+            <li>Directory
+              <ul>
+                <li>Name: <input class="input-box" type="text" solution-hash="3b845b0238455269b980cf6df961cdd977bcc4ae" case-sensitive="yes" placeholder="string"></li>
+                <li>Size: <input class="input-box" type="text" solution-hash="b6589fc6ab0dc82cf12099d1c2d40ab994e8410c" placeholder="decimal"></li>
+                <li>First cluster: <input class="input-box" type="text" solution-hash="da4b9237bacccdf19c0760cab7aec4a8359010b0" placeholder="decimal"></li>
+              </ul>
+            </li>
+            <li>File 1
+              <ul>
+                <li>Name: <input class="input-box" type="text" solution-hash="af8abc77dabde378eb1857126d484aa3d80422af" case-sensitive="yes" placeholder="string"></li>
+                <li>Size: <input class="input-box" type="text" solution-hash="d55459a4c02a5b51680e38b42860d1689cacca5b" placeholder="decimal"></li>
+                <li>First cluster: <input class="input-box" type="text" solution-hash="cae91e45aed80f3a3fe285c3c8c1a7e78d82d473" placeholder="decimal"></li>
+                <li>Last write time: <input class="input-box" type="text" solution-hash="17ba0791499db908433b80f37c5fbc89b870084b" placeholder="hh"><input class="input-box" type="text" solution-hash="fb644351560d8296fe6da332236b1f8d61b2828a" placeholder="mm"><input class="input-box" type="text" solution-hash="798f861ee74f6ff83ccbc9c53b419941d0080e50" placeholder="ss"></li>
+                <li>Last write date: <input class="input-box" type="text" solution-hash="887309d048beef83ad3eabf2a79a64a389ab1c9f" placeholder="dd"><input class="input-box" type="text" solution-hash="b1d5781111d84f7b3fe45a0852e59758cd7a87e5" placeholder="mm"><input class="input-box" type="text" solution-hash="23a0538f53ccbf131a1f79874d3805ac4ed108fc" placeholder="yyyy"></li>
+              </ul>
+            </li>
+            <li>File 2
+              <ul>
+                <li>Name: <input class="input-box" type="text" solution-hash="429273e5fce35ae428a2abc33758627bb34f8956" case-sensitive="yes" placeholder="string"></li>
+                <li>Size: <input class="input-box" type="text" solution-hash="cbc940c1c32359752c5b86dabcf3d27d7b8fb08a" placeholder="decimal"></li>
+                <li>First cluster: <input class="input-box" type="text" solution-hash="81ecfd4383a1b3f7805215da769e4bb7e368451e" placeholder="decimal"></li>
+                <li>Last write time: <input class="input-box" type="text" solution-hash="17ba0791499db908433b80f37c5fbc89b870084b" placeholder="hh"><input class="input-box" type="text" solution-hash="54ceb91256e8190e474aa752a6e0650a2df5ba37" placeholder="mm"><input class="input-box" type="text" solution-hash="cb4e5208b4cd87268b208e49452ed6e89a68e0b8" placeholder="ss"></li>
+                <li>Last write date: <input class="input-box" type="text" solution-hash="887309d048beef83ad3eabf2a79a64a389ab1c9f" placeholder="dd"><input class="input-box" type="text" solution-hash="b1d5781111d84f7b3fe45a0852e59758cd7a87e5" placeholder="mm"><input class="input-box" type="text" solution-hash="23a0538f53ccbf131a1f79874d3805ac4ed108fc" placeholder="yyyy"></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="toc-elt">
+        <h2>File Allocation Table</h2>
+        <p>
+          Up until now, we have seen how we can find and interpret the contents of the root directory, and
+          from there on find all the files and subdirectories on the partition. For each file, we know the start
+          cluster, but since a cluster is only 512 bytes, most files will consist of more than one cluster. Hence,
+          we need a mechanism to find the next clusters of a file, given its first cluster.
+        </p>
+        <p>
+          For this purpose, FAT12 stores a file allocation table at the beginning of the volume. This table is a
+          list of 12-bit entries, with one entry for each cluster in the data section. Because our image consists
+          of 2847 clusters, the file allocation table will contain 2847 12-bit entries, for a total size of 4269
+          bytes.
+        </p>
+        <p>
+          The entries in the FAT are actually pointers to the next logical cluster in the data section. Some
+          values have a special meaning:
+        </p>
+        <ul>
+          <li>
+            <code>0x000</code>: Free cluster
+          </li>
+          <li>
+            <code>0x001</code>, and <code>0xFF0</code>-<code>0xFF6</code>: Reserved
+          </li>
+          <li>
+            <code>0xFF7</code>: Bad cluster
+          </li>
+          <li>
+            <code>0xFF8</code>-<code>0xFFF</code>: This is the last cluster of the file
+          </li>
+        </ul>
+        <p>
+          All other values (<code>0x002</code> - <code>0xFEF</code>) are pointers to the next cluster of the file.
+        </p>
+        <img class="center" src="./fat12_files/fat.png" style="width: 40%;">
+        <p>
+          Consider the above figure where a user wants to read the file <code>foobar.txt</code>. The operating
+          system finds the correct directory entry that stores the information of this file. From the directory
+          entry, we find that the first logical cluster of the file is cluster <code>0x5CA</code>. In order to find the second
+          cluster of the file, we go to the FAT and look up the value that is stored in the FAT entry with
+          index <code>0x5CA</code>. We find the value <code>0x13A</code>, which is the identification number of the second cluster of
+          the file. The third cluster can be found by looking up the value of FAT entry <code>0x13A</code>, which gives us
+          the cluster ID <code>0x2B0</code>. Finally, if we look up the value of FAT entry <code>0x2B0</code>, we find the value <code>0xFF8</code>.
+          This is one of the special values mentioned above, which indicates that this is the last cluster of the
+          file. Putting this all together, we can conclude that the file <code>foobar.txt</code> consists of the logical clusters
+          <code>0x5CA</code>, <code>0x13A</code>, <code>0x2B0</code> (in that order).
+        </p>
+
+        <p>
+          Every FAT entry is a 12-bit value. This means that one entry cannot be stored in one byte, yet it
+          also does not require the full capacity of two bytes. In order not to waste space, two FAT entries are
+          stored together in 3 bytes (or 24 bits). You can convert from the hexadecimal values of the three
+          bytes to the hexadecimal values of the two FAT entries using the following rule (pay attention to
+          the order!): <code>UV WX YZ</code> becomes FAT entries <code>0xXUV</code> and <code>0xYZW</code>.
+        </p>
+
+        <div class="question">
+          <p>
+            Imagine the first 12 bytes of a FAT are <code>F0 FF FF 00 40 00 05 F0 FF 00 00 00</code>.
+            Every FAT entry is 12 bits long, which means these 12 bytes contain 8 FAT entries:            
+          </p>
+          <ol start="0">
+            <li><code>0xFF0</code></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="e47bd8b217b998ea7d04ff07ff0c619c87b7836d" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="8aefb06c426e07a0a671a1e2488b4858d694a730" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="c63528a52274a35d1c07bd9e55a83c6eb073de81" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="de1f53b6fbc3fecd35b0bbc963e21902a149e5e3" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="e47bd8b217b998ea7d04ff07ff0c619c87b7836d" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="8aefb06c426e07a0a671a1e2488b4858d694a730" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="8aefb06c426e07a0a671a1e2488b4858d694a730" placeholder="xxx"></li>
+          </ol>
+          <p>
+            Clusters 0 and 1 are never used in the FAT, so you can ignore them. Which clusters are free? (List them in increasing order)
+          </p>
+          <ul>
+            <li><input class="input-box" type="text" solution-hash="da4b9237bacccdf19c0760cab7aec4a8359010b0" placeholder="decimal"></li>
+            <li><input class="input-box" type="text" solution-hash="c1dfd96eea8cc2b62785275bca38ac261256e278" placeholder="decimal"></li>
+            <li><input class="input-box" type="text" solution-hash="902ba3cda1883801594b6e1b452790cc53948fda" placeholder="decimal"></li>
+          </ul>
+          <p>
+            If the first cluster of a file is cluster 3,
+            its data is spread among clusters <input class="input-box" type="text" solution-hash="77de68daecd823babbb58edb1c8e14d7106e83bb" placeholder="decimal">, <input class="input-box" type="text" solution-hash="1b6453892473a467d07372d45eb05abc2031647a" placeholder="decimal"> and <input class="input-box" type="text" solution-hash="ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4" placeholder="decimal">.
+            The file is at most <input class="input-box" type="text" solution-hash="2c8041adcd90153af5180e4c18e22c3b161c25e8" placeholder="decimal"> bytes long. Say the file contains 1200 bytes,
+            then <input class="input-box" type="text" solution-hash="9c882d5c6a1aa240b2672dce0ffb03360abcaca5" placeholder="decimal"> bytes of the last cluster remain unused.
+            This is called slack space and is actually lost space due to internal fragmentation.
+        </p></div>
+
+        <p>
+          <em>Hint</em> To find the correct bytes in the FAT that correspond to a certain cluster ID, you can use this
+          simple formula: (Cluster / 2) × 3. This gives you the byte offset of the first of the three bytes that
+          contain two FAT entries. Keep in mind that this is the byte offset from the start of the FAT; you
+          need to add the offset of the FAT itself to this number as well! If Cluster ID is even, you need the
+          first FAT entry, if it is odd you need the second FAT entry.
+        </p>
+
+        <div class="question">
+          How many clusters will the file som.xls occupy (use the file size to calculate this)?
+          <input class="input-box" type="text" solution-hash="bc33ea4e26e5e1af1408321416956113a4658763" placeholder="decimal">
+        </div>
+        <br>
+        <div class="question">
+          Find all logical clusters of the file som.xls on fat12.img and reconstruct the file.
+          <ol>
+            <li><span class="hex">0x0F0</span></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="b15c1853f8a578a4cae0e785f8bf4353965f97b7" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="a50a3d4474fa607875850e460bd3f683a78399a0" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="0e2b67ea94b070e06431dabed0f2e250f4100ef0" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="37ec2bdbe17577096d4ec1a6031d53e1244692ef" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="ae4d9d7802959f52401aed9b1261cbf4d1b37725" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="8edb041294d0c405ec06763ef362b0a1a9e4ea28" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="d59a8cd9cd1714d6e4fbfc0a0a59d8368ed5c327" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="f25f7ecdfcf0054da49cf36898ad93ba7962f2c8" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="fb21486770fddadf69f046dbf6822d2d6c792453" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="ac66db1d44a530ac6779b3401db53dbd6efd577b" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="d6734ddd529b48cab9d36f7becbe855fba141be0" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="7718fd0d14f88f2de3e535986614cd69f0ef9172" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="d24514dd749bc6e3c217f47a5bdb36ff942863cd" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="21833ae90fc787a01eda7788629b9e3ce3d2c5ea" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="b8d9acfc8cf3640816f09a473bfe8c80425b94b0" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="310b86e0b62b828562fc91c7be5380a992b2786a" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="dbc0f004854457f59fb16ab863a3a1722cef553f" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="c8306ae139ac98f432932286151dc0ec55580eca" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="934385f53d1bd0c1b8493e44d0dfd4c8e88a04bb" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="78a8efcbaaa1a9a30f9f327aa89d0b6acaaffb03" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="e114c448f4ab8554ad14eff3d66dfeb3965ce8fc" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="7224f997fc148baa0b7f81c1eda6fcc3fd003db0" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="524e05dc77239f3a15dab766aaa59a9e432efde7" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="17503a6b2326f09fbc4e3a7c03874c7333002038" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="a1422e6a168630cdd214ac5e31ca01ae1bee8d92" placeholder="xxx"></li>
+            <li><span class="hex">0x</span><input class="input-box" type="text" solution-hash="251f20c475bb5ee6f59f4ed842e49b894c240bd9" placeholder="xxx"></li>
+          </ol>
+        </div>        
+        <br>
+        <p>
+          The cluster IDs that we have been using are logical clusters, meaning that they represent the cluster
+          number starting from the beginning of the data section. The numbers 0 and 1 have a special meaning
+          and are not used as cluster IDs. So the first cluster of the data section has cluster ID 2. If we want
+          to know where exactly a logical cluster is stored on the disk, we need to it into a physical clusters.
+        </p>
+        <p>
+          We have already calculated that there are 33 clusters before the start of the data section (1 boot
+          cluster, 9 clusters for each FAT, and 14 clusters for the root directory). Using this information, and
+          knowing that the first valid cluster ID is 2, we can deduce the following formula to calculate the
+          physical cluster ID from a given logical cluster ID: physicalID = 33 + logicalID - 2.
+        </p>
+        <p>
+          Once we know the physical cluster ID, we can calculate the physical location of that cluster on the
+          disk by multiplying the ID with the cluster size (512 bytes).
+        </p>
+        <div class="question">
+          What is the physical location of the first block of som.xls?
+          <span class="hex">0x</span><input class="input-box" type="text" solution-hash="167dd4150e946583af63d84b1986f4e9f3850072" placeholder="xxxxx">
+        </div>        
+      </section>
+    </section>
+    </div>
+  
+
+</body></html>
